@@ -1,15 +1,108 @@
 # includeOS on ARM 可行性报告
-
+- [includeOS on ARM 可行性报告](#includeos-on-arm-%E5%8F%AF%E8%A1%8C%E6%80%A7%E6%8A%A5%E5%91%8A)
+  - [项目介绍](#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D)
+  - [理论依据](#%E7%90%86%E8%AE%BA%E4%BE%9D%E6%8D%AE)
+    - [A. 实验准备](#a-%E5%AE%9E%E9%AA%8C%E5%87%86%E5%A4%87)
+    - [B. 实验结果](#b-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C)
+    - [C. 通过实验的局限](#c-%E9%80%9A%E8%BF%87%E5%AE%9E%E9%AA%8C%E7%9A%84%E5%B1%80%E9%99%90)
+  - [技术依据](#%E6%8A%80%E6%9C%AF%E4%BE%9D%E6%8D%AE)
+    - [includeOS 环境配置](#includeos-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
+    - [includeOS Demo](#includeos-demo)
+    - [includeOS 构建过程](#includeos-%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B)
+    - [includeOS 启动过程（x86）](#includeos-%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8Bx86)
+    - [includeOS Digest on Startup](#includeos-digest-on-startup)
+      - [`_start` @ `src/platform/x86_pc/start.asm`](#start--srcplatformx86pcstartasm)
+      - [`__arch_start` @ `src/arch/x86_64/arch_start.asm`](#archstart--srcarchx8664archstartasm)
+- [总之是 ELF 可以区分符号类型，所以 NASM 加上了这个功能。](#%E6%80%BB%E4%B9%8B%E6%98%AF-elf-%E5%8F%AF%E4%BB%A5%E5%8C%BA%E5%88%86%E7%AC%A6%E5%8F%B7%E7%B1%BB%E5%9E%8B%E6%89%80%E4%BB%A5-nasm-%E5%8A%A0%E4%B8%8A%E4%BA%86%E8%BF%99%E4%B8%AA%E5%8A%9F%E8%83%BD)
+      - [`kernel_start` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelstart--srcplatformx86pckernelstartcpp)
+      - [`kernel_main` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelmain--srcplatformx86pckernelstartcpp)
+    - [includeOS 源码阅读](#includeos-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB)
+  - [技术路线](#%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF)
+    - [需要进行的工作](#%E9%9C%80%E8%A6%81%E8%BF%9B%E8%A1%8C%E7%9A%84%E5%B7%A5%E4%BD%9C)
+    - [Coding Styles](#coding-styles)
+    - [需要熟悉的工具链/领域](#%E9%9C%80%E8%A6%81%E7%86%9F%E6%82%89%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE%E9%A2%86%E5%9F%9F)
+  - [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)
 ## 项目介绍
 
 IncludeOS 是一个 C++ 的 Unikernel 实现，并可以在 bare-metal 上运行。IncludeOS 提供了丰富的用于网络编程的库，但是目前还不支持在 ARM 上运行。裸机运行的 IncludeOS 相较于 Linux 发行版拥有更快的启动速度，并且减少了进程切换等的无谓开销。现有的树莓派的 Unikernel 主要是对一些开关 GPIO 等相关的实现，但是对网络的支持很弱。在 IoT 领域中，有许多应用场景对延迟的要求十分苛刻，而本项目意在将 IncludeOS 移植到 ARM 上，这样对延迟敏感的 IoT 应用场景会有很大帮助。
 
 ## 理论依据
 
+我们选择 includeOS 的一个重要原因是它具有更好的网络性能，
+
+<!-- In order to demonstrate the performance of IncludeOS running a real service, a simple DNS-service was written in such a way that the same binary could be run on both IncludeOS and Linux. The goal with this experiment is to demonstrate the resource overhead caused by the operating system, so it is not crucial to use feature-complete DNS-server, as long as both platforms run the same service. The service that was tested is es-sentially a partial implementation of the DNS protocol, allowing the service to answer real DNS-quer- [includeOS on ARM 可行性报告](#includeos-on-arm-%E5%8F%AF%E8%A1%8C%E6%80%A7%E6%8A%A5%E5%91%8A)
+  - [项目介绍](#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D)
+  - [理论依据](#%E7%90%86%E8%AE%BA%E4%BE%9D%E6%8D%AE)
+    - [A. 实验准备](#a-%E5%AE%9E%E9%AA%8C%E5%87%86%E5%A4%87)
+    - [B. 实验结果](#b-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C)
+    - [C. 通过实验的局限](#c-%E9%80%9A%E8%BF%87%E5%AE%9E%E9%AA%8C%E7%9A%84%E5%B1%80%E9%99%90)
+  - [技术依据](#%E6%8A%80%E6%9C%AF%E4%BE%9D%E6%8D%AE)
+    - [includeOS 环境配置](#includeos-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
+    - [includeOS Demo](#includeos-demo)
+    - [includeOS 构建过程](#includeos-%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B)
+    - [includeOS 启动过程（x86）](#includeos-%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8Bx86)
+    - [includeOS Digest on Startup](#includeos-digest-on-startup)
+      - [`_start` @ `src/platform/x86_pc/start.asm`](#start--srcplatformx86pcstartasm)
+      - [`__arch_start` @ `src/arch/x86_64/arch_start.asm`](#archstart--srcarchx8664archstartasm)
+- [总之是 ELF 可以区分符号类型，所以 NASM 加上了这个功能。](#%E6%80%BB%E4%B9%8B%E6%98%AF-elf-%E5%8F%AF%E4%BB%A5%E5%8C%BA%E5%88%86%E7%AC%A6%E5%8F%B7%E7%B1%BB%E5%9E%8B%E6%89%80%E4%BB%A5-nasm-%E5%8A%A0%E4%B8%8A%E4%BA%86%E8%BF%99%E4%B8%AA%E5%8A%9F%E8%83%BD)
+      - [`kernel_start` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelstart--srcplatformx86pckernelstartcpp)
+      - [`kernel_main` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelmain--srcplatformx86pckernelstartcpp)
+    - [includeOS 源码阅读](#includeos-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB)
+  - [技术路线](#%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF)
+    - [需要进行的工作](#%E9%9C%80%E8%A6%81%E8%BF%9B%E8%A1%8C%E7%9A%84%E5%B7%A5%E4%BD%9C)
+    - [Coding Styles](#coding-styles)
+    - [需要熟悉的工具链/领域](#%E9%9C%80%E8%A6%81%E7%86%9F%E6%82%89%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE%E9%A2%86%E5%9F%9F)
+  - [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)ies from tools such as nslookup and dig, but limited to A-records. -->
+下面的实验展示了 IncludeOS 相比于传统方式的优势。实验的主要内容是一个简单 DNS-server，在 IncludeOS 和 Linux 上测试相同的数据流。鉴于这个实验的目的只是验证操作系统造成的资源开销，所以并不用一个功能齐全的 DNS-server，只需两个操作系统都运行相同的 DNS-server。测试的内容是 DNS 协议的部分实现，允许服务从 nslookup 和 dig 等工具回答实际的DNS查询，但仅限于 A-record。
+
+### A. 实验准备
+
+<!-- Since IncludeOS does not have a program loader or a classical shell, but rather is a part of the program, the DNS-functionality was compiled into an object ﬁle that could be linked with IncludeOS and with a Linux executable respectively. On the Linux side a standard UDP socket was used, lisen-ing to port 53. All incoming data was then passed to the pre-compiled DNS-class for processing. The resulting reply was then passed back over the socket. On IncludeOS a lambda was registered as a callback for any packets entering UDP port 53. The lambda would simply pass the data buffer on to the pre-compiled DNS-service, and send the reply directly down the stack via the transmit-function in the UDP-class. The resulting disk image is only 158 Kb, including the kernel with interrupt handlers and event-loop, virtio-driver, network stack and bootloader. -->
+由于 IncludeOS 没有程序加载器或经典 shell，而是作为程序的一部分，因此 DNS 功能被编译成一个对象文件，可以分别与 IncludeOS 和 Linux 系统的可执行文件链接。在 Linux 端，使用了一个标准的 UDP 套接字，监听53端口。然后所有传入的数据都被传递到预编译的 DNS 类进行处理。结果通过套接字返回。在 IncludeOS上，一个 lambda 函数用以进行任何进入 UDP 端口53的数据包的回调。lambda 只需将数据缓冲区传递给预编译的 DNS 服务，然后通过 UDP 类中的传输函数直接将应答发送到堆栈中。产生的磁盘映像包括带有中断处理程序和事件循环的内核、virtio驱动程序、网络堆栈和引导加载程序，而它只有158 KB！
+
+<!-- The DNS-service was made to populate its registry with 10000 synthetic A-records, each corresponding to linearly increasing IP-addresses. -->
+DNS服务用10000个 synthetic A-records 填充其注册表，每个记录对应不断增长的IP地址。
+<!-- A program was written in C++ to run the experiment in a controlled fashion. The program would do the following: -->
+执行实验的是一个 C++ 程序。它运行在控制模式下。这个程序将会进行一下几步：
+<!-- - Boot the DNS server as a subprocess, regis-tering the PID. -->
+- 将DNS服务器作为子进程启动，并注册PID。
+<!-- - When completely booted, record the contents of /proc/<PID>/stat at the hypervisor    -->
+- 完全启动后，记录管理程序`/proc/<pid>/stat`上的内容。
+<!-- - Run nslookup 1000 times, each with a different query   -->
+- 运行 nslookup 1000 次，并且每次都进行不同的查询。
+<!-- - Record the contents of /proc/<PID>/stat again, and calculate the difference in CPU-time. -->
+- 再次记录`/proc/<pid>/stat`的内容，并计算 CPU 时间差。
+<!-- - Repeat the above for IncludeOS and Linux every other time, 100 times each.-->
+- 对 IncludeOS 和 linux 重复上述步骤100次。
+
+<!-- The experiment was run on the same hardware as mentioned above, a 48-core AMD Opteron server, and a newer 6-core Intel Xeon server. -->
+实验运行在相同的硬件上，一台48核 AMDOpteron 服务器和一台6核 IntelXeon 服务器。
+
+### B. 实验结果
+
+![network_proformance](pics/network.jpg)
+<!-- As shown in ﬁg.4 the DNS service spent significantly less CPU time while running on IncludeOS, compared to when running on Ubuntu. On AMD IncludeOS uses 20% fewer CPU-ticks on average total, and 70% fewer ticks on average spent inside the guest CPU. On Intel IncludeOS uses 5.5%fewer CPU-ticks on average total, and 66% fewer ticks inside the guest.
+In the ﬁgure, ”guest time” is the time spent inside the virtual CPU, and ”host time” is the time spent running the Qemu process, emulating the virtual hardware. The main factor affecting time spent in the host process, as opposed to inside the guest, is the number of vm exits, i.e. execution of protected instructions, which has to be forwarded to the hypervisor or emulated. For instance the in-structions out, used for most bus communication, and hlt used to idle, are protected and will cause VM exits. -->
+
+上图中展示了运行在 includeOS 上的 DNS 服务器比运行在 Ubuntu 上花费了更少的 CPU 时间。在 AMD 上运行的 includeOS 总计平均少执行 20% 的`CPU-ticks`，并且客户端的CPU 会少执行 70% 的`CPU-ticks`。在 Intel 上，includeOS 平均少执行 5.5% 的`CPU-ticks`，并且客户端的 CPU 会少执行 66% 的`CPU-ticks`。在图中，`guest time`是在虚拟 CPU 中所花费的时间，而`host time`是在`Qemu`进程中模拟虚拟硬件花费的时间。与`guest`进程相比，影响`host`进程花费时间的最主要的因素是`vm exit`（即执行保护指令，这些必须转发给管理员或者进行模拟）的次数。例如大多数总线通信的指令或者停止机器的`hlt`指令，都是被保护的，而且会导致`vm exit`。
+
+
+### C. 通过实验的局限
+
+IncludeOS 的网络栈远未完成，可能不完全符合 RFC 标准。它是以务实的方式实现的，只提供运行 DNS 服务所需要的内容。因此，可能存在特定的 RFC 要求的网络功能特性，如果实现这些功能，可能导致 IncludeOS 减速。资料显示，不存在这样能显著改变结果的功能。另外，IncludeOS 还没有实现标准 socket API, 为编写应用的程序员留下了更多的工作，但也少了一层抽象。使用 socket 至多只会在客户机 CPU 中产生一些额外的处理时间。
+
+ <!-- The network stack in IncludeOS is far from complete, and may not fully conform to RFC standards. It has been implemented using a pragmatic approach, providing only what needs to be in place for the DNS service to function in practice. For this reason, there might be certain networking features that are required by the RFC’s, which if implemented would cause slowdown to IncludeOS. To the authors knowlege, no such features would significantly change the results. Additionally, IncludeOS does not yet implement the standard socket API, leaving more work for the application programmer, but also one less abstraction. At most, using sockets would incur a few extra cycles of processing time inside the guest CPU. -->
+
+
+
 
 ## 技术依据
 
 在「技术依据」章节，我们将对 includeOS 的开发环境配置，启动过程和相关技术进行简要的介绍。
+
+- 注：**全部代码分析**基于 2019-04-09 获取的`master`分支`d6a158661f889852c496eb2fd1ef26d06ec0ed39`，`tag: v0.14.1`
+
+- 注II：环境配置基于 **ArchLinux 64bit**
 
 ### includeOS 环境配置
 Ref: [GetStarted @ IncludeOS](http://www.includeos.org/get-started.html)
@@ -139,7 +232,7 @@ Ref: [The Build Process](https://includeos.readthedocs.io/en/latest/The-build-pr
 
 7. 一旦设备初始化完成，例如设置 HTTP 服务器之后，接收到像网络数据包某些特定事件之后，includeOS 将被唤醒并重新接管设备。
 
-### includeOS Digest
+### includeOS Digest on Startup
 说明：(external) 表示此符号/函数不由当前文件提供。
 
 首先，由 Multiboot Bootloader 装载后的二进制映像文件从`_start`开始执行。
@@ -153,7 +246,7 @@ Ref: [The Build Process](https://includeos.readthedocs.io/en/latest/The-build-pr
 
 `__start_panic` 将会调用`__serial_print1`(external)，并传参「Panic: OS returned to x86 start.asm. Halting\n」。
 
-====
+------
 Providers:
 - `__arch_start`: `src/arch/i686/arch_start.asm`, `src/arch/x86_64/arch_start_broken.asm`, `src/arch/x86_64/arch_start_broken1.asm`, `src/platform/x86_pc/start.asm`, `src/arch/x86_64/arch_start.asm`
 - `__serial_print1`: `src\platform\x86_pc\serial1.cpp`
@@ -167,8 +260,10 @@ Providers:
   GLOBAL, like EXTERN, allows object formats to define private extensions by means of a colon. The elf object format, for example, lets you specify whether global data items are functions or data:
   global  hashlookup:function, hashtable:data
 ```
+
 总之是 ELF 可以区分符号类型，所以 NASM 加上了这个功能。
-====
+
+------
 `__arch_start`一开始是 32 位代码段，用`[BITS 32]`标识。
 1. 关闭老的分页机制，设置页表，开启 PAE（物理地址扩展）
 2. 启用 `long mode`，启动分页，加载 64-bit GDT
@@ -209,7 +304,33 @@ Providers:
 8. 调用`_init_syscalls()` 初始化系统调用
 9. 调用`x86::idt_initialize_for_cpu(0);` 初始化 CPU Exceptions。
 10. 调用`_init_elf_parser()` 初始化 ELF Parser
-11. 
+11. 打印 ELF 相关信息，并且实例化`Elf_binary<Elf64>`类
+12. 调用`RNG::init()`初始化随机数生成器
+13. 创建 C 运行时的辅助数组：`std::array<char*, 6 + 38*2> argv;` 前两个元素是`Service::name()`和`\0`，后面是一些辅助向量，如环境变量和 `AT_*` （都是一些定义成数字的宏），`set_long`和`set_ptr`也只是一些设置数组元素的方法。
+14. 设置 Stack Protector Value（通过随机数生成器生成一个）
+15. 如果是 x86_64，设置`x86::CPU::write_msr(IA32_STAR, star)`和`x86::CPU::write_msr(IA32_LSTAR, (uintptr_t)&__syscall_entry)`
+16. 跳转到 libc 初始化：`__libc_start_main(kernel_main, argc, argv.data())`
+    (musl-libc 初始化完成后会调用 `kernel_main`)
+------
+
+Providers:
+- `__libc_start_main` 来自 [musl-libc](http://www.musl-libc.org/)，并且在`./install.sh` 安装时下载的 Precompiled Binaries 中，所以 Repo 中直接搜索会搜索不到
+- `kernel_main`: 和`kernel_start`在同一个文件中
+
+#### `kernel_main` @ `src\platform\x86_pc\kernel_start.cpp`
+1. `OS::start(__grub_magic,__grub_addr);` 初始化早期 OS，平台和设备
+2. `OS::post_start();` 初始化公共子系统，并且调用`Service::start()`
+3. `kernel_sanity_checks();` 校验内存中 read-only 区域
+4. `OS::event_loop();` 开始事件循环
+5. 返回（当系统退出时发生）
+
+------
+
+Providers:
+- `OS::start(uint32_t boot_magic, uint32_t boot_addr)`: `src/platform/x86_pc/os.cpp`
+- `OS::post_start();`: `src/kernel/os.cpp`
+- `kernel_sanity_checks()`: `src/platform/x86_pc/sanity_checks.cpp`
+- `OS::event_loop()`: `src/kernel/os.cpp`
 
 ### includeOS 源码阅读
 
@@ -233,5 +354,33 @@ __init_serial1    (Function)
 
 ## 技术路线
 
+### 需要进行的工作
+
+1. 尝试在 Raspberry Pi 3B+ 上启动
+2. 添加系统总线和外设支持（特别是 USB）
+3. 网络支持
+
+目前在 IncludeOS 的**dev**分支，有开发者正在进行`arm`平台的移植。详情可以参见[这里](https://www.includeos.org/blog/2018/port-to-arm.html)。
+
+![chat_on_slack](pics/slack_talk.png)
+
+我们和他们在 [Slack Channel](https://includeos.slack.com/) 上进行了交流，他们表示 ARM 的移植还处与很早期的阶段。
+
+我们将首先熟悉整个代码树，然后开始进行移植工作。
+
+### Coding Styles
+
+https://includeos.readthedocs.io/en/latest/Contributing-to-IncludeOS.html
+
+https://github.com/isocpp/CppCoreGuidelines
+
+### 需要熟悉的工具链/领域
+- CMake
+- ARM Assembly & Startup
+- Detailed linking and ELF Formats
+- C/C++
+
 ## 参考文献
 1. [Introduction to X64 Assembly](https://software.intel.com/en-us/articles/introduction-to-x64-assembly)
+2. [Alfred Bratterud, Alf-Andre Walla, Harek Haugerud, Paal E. Engelstad, Kyrre Begnum,"IncludeOS: A minimal, resource efficient
+unikernel for cloud services"](https://github.com/includeos/IncludeOS/blob/master/doc/papers/IncludeOS_IEEE_CloudCom2015_PREPRINT.pdf)
