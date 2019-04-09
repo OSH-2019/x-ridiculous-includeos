@@ -1,0 +1,3 @@
+[submodule "code/IncludeOS"]
+	path = code/IncludeOS
+	url = https://github.com/libreliu/IncludeOS.git
