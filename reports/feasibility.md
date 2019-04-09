@@ -13,7 +13,6 @@
     - [includeOS Digest on Startup](#includeos-digest-on-startup)
       - [`_start` @ `src/platform/x86_pc/start.asm`](#start--srcplatformx86pcstartasm)
       - [`__arch_start` @ `src/arch/x86_64/arch_start.asm`](#archstart--srcarchx8664archstartasm)
-- [总之是 ELF 可以区分符号类型，所以 NASM 加上了这个功能。](#%E6%80%BB%E4%B9%8B%E6%98%AF-elf-%E5%8F%AF%E4%BB%A5%E5%8C%BA%E5%88%86%E7%AC%A6%E5%8F%B7%E7%B1%BB%E5%9E%8B%E6%89%80%E4%BB%A5-nasm-%E5%8A%A0%E4%B8%8A%E4%BA%86%E8%BF%99%E4%B8%AA%E5%8A%9F%E8%83%BD)
       - [`kernel_start` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelstart--srcplatformx86pckernelstartcpp)
       - [`kernel_main` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelmain--srcplatformx86pckernelstartcpp)
     - [includeOS 源码阅读](#includeos-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB)
@@ -22,38 +21,14 @@
     - [Coding Styles](#coding-styles)
     - [需要熟悉的工具链/领域](#%E9%9C%80%E8%A6%81%E7%86%9F%E6%82%89%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE%E9%A2%86%E5%9F%9F)
   - [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)
+
 ## 项目介绍
 
 IncludeOS 是一个 C++ 的 Unikernel 实现，并可以在 bare-metal 上运行。IncludeOS 提供了丰富的用于网络编程的库，但是目前还不支持在 ARM 上运行。裸机运行的 IncludeOS 相较于 Linux 发行版拥有更快的启动速度，并且减少了进程切换等的无谓开销。现有的树莓派的 Unikernel 主要是对一些开关 GPIO 等相关的实现，但是对网络的支持很弱。在 IoT 领域中，有许多应用场景对延迟的要求十分苛刻，而本项目意在将 IncludeOS 移植到 ARM 上，这样对延迟敏感的 IoT 应用场景会有很大帮助。
 
 ## 理论依据
 
-我们选择 includeOS 的一个重要原因是它具有更好的网络性能，
-
-<!-- In order to demonstrate the performance of IncludeOS running a real service, a simple DNS-service was written in such a way that the same binary could be run on both IncludeOS and Linux. The goal with this experiment is to demonstrate the resource overhead caused by the operating system, so it is not crucial to use feature-complete DNS-server, as long as both platforms run the same service. The service that was tested is es-sentially a partial implementation of the DNS protocol, allowing the service to answer real DNS-quer- [includeOS on ARM 可行性报告](#includeos-on-arm-%E5%8F%AF%E8%A1%8C%E6%80%A7%E6%8A%A5%E5%91%8A)
-  - [项目介绍](#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D)
-  - [理论依据](#%E7%90%86%E8%AE%BA%E4%BE%9D%E6%8D%AE)
-    - [A. 实验准备](#a-%E5%AE%9E%E9%AA%8C%E5%87%86%E5%A4%87)
-    - [B. 实验结果](#b-%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C)
-    - [C. 通过实验的局限](#c-%E9%80%9A%E8%BF%87%E5%AE%9E%E9%AA%8C%E7%9A%84%E5%B1%80%E9%99%90)
-  - [技术依据](#%E6%8A%80%E6%9C%AF%E4%BE%9D%E6%8D%AE)
-    - [includeOS 环境配置](#includeos-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE)
-    - [includeOS Demo](#includeos-demo)
-    - [includeOS 构建过程](#includeos-%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B)
-    - [includeOS 启动过程（x86）](#includeos-%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8Bx86)
-    - [includeOS Digest on Startup](#includeos-digest-on-startup)
-      - [`_start` @ `src/platform/x86_pc/start.asm`](#start--srcplatformx86pcstartasm)
-      - [`__arch_start` @ `src/arch/x86_64/arch_start.asm`](#archstart--srcarchx8664archstartasm)
-- [总之是 ELF 可以区分符号类型，所以 NASM 加上了这个功能。](#%E6%80%BB%E4%B9%8B%E6%98%AF-elf-%E5%8F%AF%E4%BB%A5%E5%8C%BA%E5%88%86%E7%AC%A6%E5%8F%B7%E7%B1%BB%E5%9E%8B%E6%89%80%E4%BB%A5-nasm-%E5%8A%A0%E4%B8%8A%E4%BA%86%E8%BF%99%E4%B8%AA%E5%8A%9F%E8%83%BD)
-      - [`kernel_start` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelstart--srcplatformx86pckernelstartcpp)
-      - [`kernel_main` @ `src\platform\x86_pc\kernel_start.cpp`](#kernelmain--srcplatformx86pckernelstartcpp)
-    - [includeOS 源码阅读](#includeos-%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB)
-  - [技术路线](#%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF)
-    - [需要进行的工作](#%E9%9C%80%E8%A6%81%E8%BF%9B%E8%A1%8C%E7%9A%84%E5%B7%A5%E4%BD%9C)
-    - [Coding Styles](#coding-styles)
-    - [需要熟悉的工具链/领域](#%E9%9C%80%E8%A6%81%E7%86%9F%E6%82%89%E7%9A%84%E5%B7%A5%E5%85%B7%E9%93%BE%E9%A2%86%E5%9F%9F)
-  - [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)ies from tools such as nslookup and dig, but limited to A-records. -->
-下面的实验展示了 IncludeOS 相比于传统方式的优势。实验的主要内容是一个简单 DNS-server，在 IncludeOS 和 Linux 上测试相同的数据流。鉴于这个实验的目的只是验证操作系统造成的资源开销，所以并不用一个功能齐全的 DNS-server，只需两个操作系统都运行相同的 DNS-server。测试的内容是 DNS 协议的部分实现，允许服务从 nslookup 和 dig 等工具回答实际的DNS查询，但仅限于 A-record。
+我们选择 includeOS 的一个重要原因是它具有更好的网络性能并且占用更少的资源。下面的实验（见**参考文献2**）展示了 IncludeOS 相比于传统方式的优势。实验的主要内容是一个简单 DNS-server，在 IncludeOS 和 Linux 上测试相同的数据流。鉴于这个实验的目的只是验证操作系统造成的资源开销，所以并不用一个功能齐全的 DNS-server，只需两个操作系统都运行相同的 DNS-server。测试的内容是 DNS 协议的部分实现，允许服务从 nslookup 和 dig 等工具回答实际的DNS查询，但仅限于 A-record。
 
 ### A. 实验准备
 
