@@ -5,8 +5,11 @@ An attempt to port IncludeOS to ARM RPi 3B+.
 ## Team Members
 
 刘紫檀 (Zitan Liu)
+
 张博文 (Bowen Zhang)
+
 虞佳焕 (Jiahuan Yu)
+
 汤兖霖 (Yanlin Tang)
 
 ## Reports
