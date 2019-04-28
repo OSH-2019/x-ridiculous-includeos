@@ -109,12 +109,13 @@
 |-- arch
 | |-- i686
 | `-- x86_64
-|-- chainload
-| |-- CMakeLists.txt
+|-- chainload            一个用 IncludeOS 写的 Multiboot Loader
+                         编译时 ARCH i686; PLATFORM x86_nano
+| |-- CMakeLists.txt     
 | |-- build
 | |-- hotswap.cpp
 | `-- service.cpp
-|-- crt
+|-- crt                  C Runtime 
 | |-- c_abi.c
 | |-- crti.asm
 | |-- crtn.asm
