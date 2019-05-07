@@ -34,3 +34,24 @@
        nothing at all.
 
 ```
+
+> `http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0773a/chr1383143887630.html`
+```
+4.2 Preprocessing assembly code
+Assembly code that contains C directives, for example #include or #define, must be resolved by the C preprocessor prior to assembling.
+
+By default, armclang uses the assembly code source file suffix to determine whether or not to run the C preprocessor:
+The .s (lower-case) suffix indicates assembly code that does not require preprocessing.
+The .S (upper-case) suffix indicates assembly code that requires preprocessing.
+The -x option lets you override the default by specifying the language of the source file, rather than inferring the language from the file suffix. Specifically, -x assembler-with-cpp indicates that the assembly code contains C directives and armclang must run the C preprocessor. The -x option only applies to input files that follow it on the command line.
+To preprocess an assembly code source file, do one of the following:
+Ensure that the assembly code filename has a .S suffix.
+For example:
+armclang -E test.S
+Use the -x assembler-with-cpp option to tell armclang that the assembly source file requires preprocessing.
+For example:
+armclang -E -x assembler-with-cpp test.s
+Note
+The -E option specifies that armclang only executes the preprocessor step.
+The -x option is a GCC-compatible option. See the GCC documentation for a full list of valid values.
+```
