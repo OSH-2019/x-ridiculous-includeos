@@ -669,3 +669,465 @@ make: *** [Makefile:130：all] 错误 2
 [libreliu@thinkpad-ssd mod_src_build]$ 
 ```
 这是显然的，因为我还没有把那些玩意注释掉（先把 `arch` 无关的代码端掉）
+
+
+### after patching main cmake script
+```
+[libreliu@thinkpad-ssd IncludeOS-dev-new]$ cd modified_src/
+[libreliu@thinkpad-ssd modified_src]$ cmake ../mod_src_build
+-- Conan: called by CMake conan helper
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Conan: Compiler GCC>=5, checking major version 8
+-- Conan: Checking correct version: 8
+-- Target CPU aarch64
+-- Target triple aarch64-pc-linux-elf
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/libreliu/OS/IncludeOS-dev-new/mod_src_build
+[libreliu@thinkpad-ssd modified_src]$ cd ../mod_src_build/
+[libreliu@thinkpad-ssd mod_src_build]$ make
+[  5%] Built target crt
+Scanning dependencies of target os
+[  6%] Building CXX object src/CMakeFiles/os.dir/version.cpp.o
+[  7%] Linking CXX static library ../lib/libos.a
+[  7%] Built target os
+Scanning dependencies of target arch
+[  8%] Building CXX object src/arch/aarch64/CMakeFiles/arch.dir/paging.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/arch/aarch64/paging.cpp: In function 'os::mem::Map os::mem::map(os::mem::Map, const char*)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/arch/aarch64/paging.cpp:30:15: warning: unused parameter 'm' [-Wunused-parameter]
+   Map map(Map m, const char* name) {
+           ~~~~^
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/arch/aarch64/paging.cpp:30:30: warning: unused parameter 'name' [-Wunused-parameter]
+   Map map(Map m, const char* name) {
+                  ~~~~~~~~~~~~^~~~
+[  9%] Building CXX object src/arch/aarch64/CMakeFiles/arch.dir/cpu.cpp.o
+[ 10%] Building CXX object src/arch/aarch64/CMakeFiles/arch.dir/timer.cpp.o
+[ 11%] Building CXX object src/arch/aarch64/CMakeFiles/arch.dir/syscall_entry.cpp.o
+[ 12%] Building ASM object src/arch/aarch64/CMakeFiles/arch.dir/arch_start.asm.o
+[ 13%] Building ASM object src/arch/aarch64/CMakeFiles/arch.dir/exceptions.asm.o
+[ 14%] Linking CXX static library ../../../lib/libarch.a
+[ 14%] Built target arch
+Scanning dependencies of target aarch64_default
+[ 14%] Building ASM object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/start_aarch64.asm.o
+[ 15%] Building ASM object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/stop.asm.o
+[ 16%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/serial1.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/serial.hpp:24,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/serial1.cpp:1:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'uint8_t hw::inb(uint16_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:26:38: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline uint8_t inb(uint16_t port)
+                             ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'uint16_t hw::inw(uint16_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:38:39: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline uint16_t inw(uint16_t port)
+                              ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'uint32_t hw::inl(uint16_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:50:39: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline uint32_t inl(uint16_t port)
+                              ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'void hw::outb(uint16_t, uint8_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:62:36: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline void outb(uint16_t port, uint8_t data)
+                           ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:62:50: warning: unused parameter 'data' [-Wunused-parameter]
+   static inline void outb(uint16_t port, uint8_t data)
+                                          ~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'void hw::outw(uint16_t, uint16_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:71:36: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline void outw(uint16_t port, uint16_t data)
+                           ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:71:51: warning: unused parameter 'data' [-Wunused-parameter]
+   static inline void outw(uint16_t port, uint16_t data)
+                                          ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp: In function 'void hw::outl(uint16_t, uint32_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:80:36: warning: unused parameter 'port' [-Wunused-parameter]
+   static inline void outl(uint16_t port, uint32_t data)
+                           ~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hw/ioport.hpp:80:51: warning: unused parameter 'data' [-Wunused-parameter]
+   static inline void outl(uint16_t port, uint32_t data)
+                                          ~~~~~~~~~^~~~
+[ 17%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/platform.cpp.o
+[ 18%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/kernel_start.cpp.o
+[ 19%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/os.cpp.o
+[ 20%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/gic.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp: In function 'void gic_init_fdt(const char*, uint32_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp:102:12: warning: variable 'len' set but not used [-Wunused-but-set-variable]
+   uint64_t len;
+            ^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp: In function 'void init_gicd()':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp:211:7: warning: unused variable 'config_regs' [-Wunused-variable]
+   int config_regs=(irq_lines+GIC_V3_GICD_CFGR_PER_REG-1)/GIC_V3_GICD_CFGR_PER_REG;
+       ^~~~~~~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp: In function 'void __arch_install_irq(uint8_t, uintptr_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/gic.cpp:311:48: warning: unused parameter 'handler' [-Wunused-parameter]
+ void __arch_install_irq(uint8_t irq, uintptr_t handler)
+                                      ~~~~~~~~~~^~~~~~~
+[ 21%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/exception_handling.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp: In function 'void exception_handler_irq_el(stack_frame*, uint64_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:26:51: warning: unused parameter 'ctx' [-Wunused-parameter]
+ void exception_handler_irq_el(struct stack_frame *ctx,uint64_t esr)
+                               ~~~~~~~~~~~~~~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:26:64: warning: unused parameter 'esr' [-Wunused-parameter]
+ void exception_handler_irq_el(struct stack_frame *ctx,uint64_t esr)
+                                                       ~~~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp: In function 'void exception_handler_syn_el(stack_frame*, uint64_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:125:11: warning: format '%x' expects argument of type 'unsigned int', but argument 2 has type 'uint64_t' {aka 'long unsigned int'} [-Wformat=]
+   kprintf("SYN EXCEPTION %08x\r\n",esr);
+           ^~~~~~~~~~~~~~~~~~~~~~~~ ~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp: In function 'void exception_handler_fiq_el(stack_frame*, uint64_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:143:51: warning: unused parameter 'ctx' [-Wunused-parameter]
+ void exception_handler_fiq_el(struct stack_frame *ctx,uint64_t esr)
+                               ~~~~~~~~~~~~~~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:143:64: warning: unused parameter 'esr' [-Wunused-parameter]
+ void exception_handler_fiq_el(struct stack_frame *ctx,uint64_t esr)
+                                                       ~~~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp: In function 'void exception_handler_serror_el(stack_frame*, uint64_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:149:54: warning: unused parameter 'ctx' [-Wunused-parameter]
+ void exception_handler_serror_el(struct stack_frame *ctx,uint64_t esr)
+                                  ~~~~~~~~~~~~~~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/platform/aarch64_vm/exception_handling.cpp:149:67: warning: unused parameter 'esr' [-Wunused-parameter]
+ void exception_handler_serror_el(struct stack_frame *ctx,uint64_t esr)
+                                                          ~~~~~~~~~^~~
+[ 22%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/init_libc.cpp.o
+[ 23%] Building CXX object src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/sanity_checks.cpp.o
+[ 24%] Linking CXX static library ../../../platform/libaarch64_default.a
+[ 24%] Built target aarch64_default
+Scanning dependencies of target musl_syscalls
+[ 25%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/futex.cpp.o
+[ 26%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/close.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/close.cpp:2:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 27%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fcntl.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/fcntl.cpp:2:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 28%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/lseek.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/lseek.cpp:6:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 29%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/ioctl.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/ioctl.cpp:4:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 30%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/writev.cpp.o
+[ 31%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/write.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/write.cpp:3:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 32%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/brk.cpp.o
+[ 33%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/madvise.cpp.o
+[ 34%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mmap.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/kernel/memory.hpp:25,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/typename.hpp:20,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hal/detail/machine.hpp:24,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/hal/machine.hpp:95,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/include/kernel.hpp:20,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/common.hpp:7,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mmap.cpp:1:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/alloc_buddy.hpp: In instantiation of 'os::mem::buddy::Alloc<Track_allocs>::Track_res os::mem::buddy::Alloc<Track_allocs>::alloc_tracker(os::mem::buddy::Alloc<Track_allocs>::Track) const [with bool Track_allocs = false]':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/alloc_buddy.hpp:326:7:   required from 'void* os::mem::buddy::Alloc<Track_allocs>::allocate(os::mem::buddy::Size_t) [with bool Track_allocs = false; os::mem::buddy::Size_t = long unsigned int]'
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mmap.cpp:31:30:   required from here
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/alloc_buddy.hpp:292:35: warning: parameter 'action' set but not used [-Wunused-but-set-parameter]
+     Track_res alloc_tracker(Track action = Track::get) const noexcept {
+                             ~~~~~~^~~~~~~~~~~~~~~~~~~
+[ 35%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mremap.cpp.o
+[ 36%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/munmap.cpp.o
+[ 37%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/sched_getaffinity.cpp.o
+[ 38%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/sysinfo.cpp.o
+[ 39%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/prlimit64.cpp.o
+[ 40%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/getrlimit.cpp.o
+[ 41%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/sched_yield.cpp.o
+[ 42%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/set_robust_list.cpp.o
+[ 42%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/nanosleep.cpp.o
+[ 43%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/open.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/open.cpp:4:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 44%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/creat.cpp.o
+[ 45%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/clock_gettime.cpp.o
+[ 46%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/gettimeofday.cpp.o
+[ 47%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/poll.cpp.o
+[ 48%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/exit.cpp.o
+[ 49%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/set_tid_address.cpp.o
+[ 50%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/pipe.cpp.o
+[ 51%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/read.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/read.cpp:2:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 52%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/readv.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/readv.cpp:3:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 53%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/getpid.cpp.o
+[ 54%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/getuid.cpp.o
+[ 55%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mknod.cpp.o
+[ 56%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/sync.cpp.o
+[ 57%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/msync.cpp.o
+[ 58%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mincore.cpp.o
+[ 59%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/syscall_n.cpp.o
+[ 60%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/sigmask.cpp.o
+[ 61%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/gettid.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/gettid.cpp:5:2: warning: #warning "gettid not implemented for threaded IncludeOS" [-Wcpp]
+ #warning "gettid not implemented for threaded IncludeOS"
+  ^~~~~~~
+[ 62%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/socketcall.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:5:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/inet.hpp:38,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/inet:6,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/sockfd.hpp:23,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/tcp_fd.hpp:22,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:6:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/ip6/mld.hpp: At global scope:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/ip6/mld.hpp:155:36: warning: 'maybe_unused' attribute ignored [-Wattributes]
+       [[maybe_unused]]Mld         &mld_;
+                                    ^~~~
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/tcp/connection.hpp:34,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/tcp/tcp.hpp:23,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/inet.hpp:40,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/net/inet:6,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/sockfd.hpp:23,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/tcp_fd.hpp:22,
+                 from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:6:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/alloc_pmr.hpp: In member function 'virtual bool os::mem::Default_pmr::do_is_equal(const std::experimental::fundamentals_v1::pmr::memory_resource&) const':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/util/alloc_pmr.hpp:118:23: warning: unused variable 'underlying' [-Wunused-variable]
+       if (const auto* underlying = dynamic_cast<const Default_pmr*>(&other))
+                       ^~~~~~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp: In function 'long int socketcall_getsockopt(int, int, int, void*, socklen_t*)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:111:32: warning: unused parameter 'sockfd' [-Wunused-parameter]
+ long socketcall_getsockopt(int sockfd,
+                            ~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:112:9: warning: unused parameter 'level' [-Wunused-parameter]
+     int level, int optname, void *optval, socklen_t *optlen)
+     ~~~~^~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:112:20: warning: unused parameter 'optname' [-Wunused-parameter]
+     int level, int optname, void *optval, socklen_t *optlen)
+                ~~~~^~~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:112:35: warning: unused parameter 'optval' [-Wunused-parameter]
+     int level, int optname, void *optval, socklen_t *optlen)
+                             ~~~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:112:54: warning: unused parameter 'optlen' [-Wunused-parameter]
+     int level, int optname, void *optval, socklen_t *optlen)
+                                           ~~~~~~~~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp: In function 'long int socketcall_setsockopt(int, int, int, const void*, socklen_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:116:32: warning: unused parameter 'sockfd' [-Wunused-parameter]
+ long socketcall_setsockopt(int sockfd,
+                            ~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:117:9: warning: unused parameter 'level' [-Wunused-parameter]
+     int level, int optname, const void *optval, socklen_t optlen)
+     ~~~~^~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:117:20: warning: unused parameter 'optname' [-Wunused-parameter]
+     int level, int optname, const void *optval, socklen_t optlen)
+                ~~~~^~~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:117:41: warning: unused parameter 'optval' [-Wunused-parameter]
+     int level, int optname, const void *optval, socklen_t optlen)
+                             ~~~~~~~~~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:117:59: warning: unused parameter 'optlen' [-Wunused-parameter]
+     int level, int optname, const void *optval, socklen_t optlen)
+                                                 ~~~~~~~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp: In function 'long int socketcall_getsockname(int, sockaddr*, socklen_t*)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:121:33: warning: unused parameter 'sockfd' [-Wunused-parameter]
+ long socketcall_getsockname(int sockfd,
+                             ~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:122:22: warning: unused parameter 'addr' [-Wunused-parameter]
+     struct sockaddr *addr, socklen_t *addrlen)
+     ~~~~~~~~~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:122:39: warning: unused parameter 'addrlen' [-Wunused-parameter]
+     struct sockaddr *addr, socklen_t *addrlen)
+                            ~~~~~~~~~~~^~~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp: In function 'long int socketcall_getpeername(int, sockaddr*, socklen_t*)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:127:33: warning: unused parameter 'sockfd' [-Wunused-parameter]
+ long socketcall_getpeername(int sockfd,
+                             ~~~~^~~~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:128:22: warning: unused parameter 'addr' [-Wunused-parameter]
+     struct sockaddr *addr, socklen_t *addrlen)
+     ~~~~~~~~~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/socketcall.cpp:128:39: warning: unused parameter 'addrlen' [-Wunused-parameter]
+     struct sockaddr *addr, socklen_t *addrlen)
+                            ~~~~~~~~~~~^~~~~~~
+[ 62%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/rt_sigaction.cpp.o
+[ 63%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/stat.cpp.o
+[ 64%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fstat.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/fstat.cpp:4:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 65%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fstatat.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/fstatat.cpp:4:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 66%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/access.cpp.o
+[ 67%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/chmod.cpp.o
+[ 68%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/chown.cpp.o
+[ 69%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/cwd.cpp.o
+[ 70%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/dup3.cpp.o
+[ 71%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/execve.cpp.o
+[ 72%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fchmod.cpp.o
+[ 73%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fchmodat.cpp.o
+[ 74%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fchown.cpp.o
+[ 75%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/fsync.cpp.o
+[ 76%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/ftruncate.cpp.o
+[ 77%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/getdents.cpp.o
+In file included from /home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/getdents.cpp:3:
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp: In member function 'void FD_map::internal_close(FD_map::id_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/../api/posix/fd_map.hpp:81:10: warning: unused variable 'erased' [-Wunused-variable]
+     auto erased = map_.erase(id);
+          ^~~~~~
+[ 78%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/geteuid.cpp.o
+[ 79%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/getgid.cpp.o
+[ 80%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/kill.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/kill.cpp:10:5: warning: #warning "tkill not implemented for threaded IncludeOS" [-Wcpp]
+ #   warning "tkill not implemented for threaded IncludeOS"
+     ^~~~~~~
+[ 81%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mkdir.cpp.o
+[ 82%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mkdirat.cpp.o
+[ 82%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mknodat.cpp.o
+[ 83%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mlock.cpp.o
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp: In function 'long int sys_mlock(const void*, size_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp:4:35: warning: unused parameter 'addr' [-Wunused-parameter]
+ static long sys_mlock(const void* addr, size_t len)
+                       ~~~~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp:4:48: warning: unused parameter 'len' [-Wunused-parameter]
+ static long sys_mlock(const void* addr, size_t len)
+                                         ~~~~~~~^~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp: In function 'long int sys_munlock(const void*, size_t)':
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp:8:37: warning: unused parameter 'addr' [-Wunused-parameter]
+ static long sys_munlock(const void* addr, size_t len)
+                         ~~~~~~~~~~~~^~~~
+/home/libreliu/OS/IncludeOS-dev-new/modified_src/src/musl/mlock.cpp:8:50: warning: unused parameter 'len' [-Wunused-parameter]
+ static long sys_munlock(const void* addr, size_t len)
+                                           ~~~~~~~^~~
+[ 84%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/mprotect.cpp.o
+[ 85%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/openat.cpp.o
+[ 86%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/readlink.cpp.o
+[ 87%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/rename.cpp.o
+[ 88%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/rmdir.cpp.o
+[ 89%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/select.cpp.o
+[ 90%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/setgid.cpp.o
+[ 91%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/setpgid.cpp.o
+[ 92%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/setrlimit.cpp.o
+[ 93%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/setsid.cpp.o
+[ 94%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/setuid.cpp.o
+[ 95%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/wait4.cpp.o
+[ 96%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/umask.cpp.o
+[ 97%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/uname.cpp.o
+[ 98%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/utimensat.cpp.o
+[ 99%] Building CXX object src/musl/CMakeFiles/musl_syscalls.dir/unlink.cpp.o
+[100%] Linking CXX static library ../../lib/libmusl_syscalls.a
+[100%] Built target musl_syscalls
+[libreliu@thinkpad-ssd mod_src_build]$ 
+```
+
+注意这个路径 `src/platform/aarch64_vm/CMakeFiles/aarch64_default.dir/gic.cpp.o` 是由 CMake INSTALL 命令提供的（`INSTALL (TARGET ... DESTINATION ...)`）
+
+
+> 一个简单的 service（比如 `std::cout << "oops"）怎么实现？要哪些接口实现 `cout`？
+> - 可以先用原来的 x86 版本实验一下
+原来的：
+```
+cmake_minimum_required(VERSION 2.8.9)
+if (NOT DEFINED ENV{INCLUDEOS_PREFIX})
+  set(ENV{INCLUDEOS_PREFIX} /usr/local)
+endif()
+include($ENV{INCLUDEOS_PREFIX}/includeos/pre.service.cmake)
+project (service)
+
+# Human-readable name of your service
+set(SERVICE_NAME "IncludeOS seed")
+
+# Name of your service binary
+set(BINARY       "seed")
+
+# Source files to be linked with OS library parts to form bootable image
+set(SOURCES
+  service.cpp # ...add more here
+  )
+
+# To add your own include paths:
+# set(LOCAL_INCLUDES ".")
+
+# DRIVERS / PLUGINS:
+set(DRIVERS
+  # virtionet   # Virtio networking driver
+  # virtioblk   # Virtio block device driver
+  boot_logger   # Enable lots of logging from boot stage
+
+  # Use "boot --drivers ." to see other drivers
+  )
+
+set(PLUGINS
+  # syslogd    # Syslog over UDP
+
+  # Use "boot --plugins ." to see other plugins
+  )
+
+# STATIC LIBRARIES:
+set(LIBRARIES
+  # path to full library
+  )
+
+
+# include service build script
+include($ENV{INCLUDEOS_PREFIX}/includeos/post.service.cmake)
+
+# Create in-memory filesystem from folder
+#diskbuilder(my_folder)
+```
+
+```
+#include <service>
+#include <cstdio>
+#include <isotime>
+#include <kernel/cpuid.hpp>
+
+void Service::start(const std::string& args)
+{
+#ifdef __GNUG__
+  printf("Built by g++ " __VERSION__ "\n");
+#endif
+  printf("Hello world! Time is now %s\n", isotime::now().c_str());
+  printf("Args = %s\n", args.c_str());
+  printf("Try giving the service less memory, eg. 5MB in vm.json\n");
+  printf("CPU has RDRAND: %d\n", CPUID::has_feature(CPUID::Feature::RDRAND));
+  printf("CPU has RDSEED: %d\n", CPUID::has_feature(CPUID::Feature::RDSEED));
+}
+```
+
+add_executable 在 `/IncludeOS_Install/includeos/post.service.cmake` 里面。
+```
+# executable
+set(SERVICE_STUB "${INSTALL_LOC}/src/service_name.cpp")
+
+add_executable(service ${SOURCES} ${SERVICE_STUB})
+set_target_properties(service PROPERTIES OUTPUT_NAME ${BINARY})
+```
+
+所以，应该看一下 `default_stdout` 的路径，这样我们才可以考虑打印的事情。
+
+**注意，cmake 可以有 `-LH`（打印variables和他们的help），以及`--trace`（跟踪每行执行的指令），会比较有用.jpg**
