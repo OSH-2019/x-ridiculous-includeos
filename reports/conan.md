@@ -1131,3 +1131,155 @@ set_target_properties(service PROPERTIES OUTPUT_NAME ${BINARY})
 所以，应该看一下 `default_stdout` 的路径，这样我们才可以考虑打印的事情。
 
 **注意，cmake 可以有 `-LH`（打印variables和他们的help），以及`--trace`（跟踪每行执行的指令），会比较有用.jpg**
+
+*UPDATE*: 打印的事情参考 [`stdout.md`](stdout.md)
+
+### make it editable
+因为新版本 hello_world 引用了 includeos 来进行构建，所以我们得把我们的更改后的包创建。但是每次都创建过于麻烦，比较好的方法是参考 IncludeOS README.md 那里把包设置成 editable 模式，直接调用这里。
+
+首先改 `etc/layout.txt` ，我这里是 `{% set build_dir='../mod_src_build' %}`。
+
+然后如下：
+```
+[libreliu@thinkpad-ssd modified_src]$ conan editable add . includeos/$(conan inspect -a version . | cut -d " " -f 2)@includeos/latest --layout=etc/layout.txt
+Using layout file: /home/libreliu/OS/IncludeOS-dev-new/modified_src/etc/layout.txt
+Reference 'includeos/0.0.0@includeos/latest' in editable mode
+[libreliu@thinkpad-ssd modified_src]$ 
+```
+
+> 0.0.0 是因为从 git 出来我先用了 conda source，从而在 `modified_src` 里面没有 `.git` 了吧..版本号是和 git 相关的。
+```
+[libreliu@thinkpad-ssd mod_src_build]$ conan editable remove includeos/0.0.0@includeos/latest
+Removed editable mode for reference 'includeos/0.0.0@includeos/latest'
+```
+```
+[libreliu@thinkpad-ssd mod_src_build]$ conan create ../modified_src/ includeos/latest -pr gcc-8.2.0-linux-aarch64
+Exporting package recipe
+ERROR: Not a valid 'git' repository
+```
+生成不了版本号，先把 `.git` 拷进去救火233
+```
+[libreliu@thinkpad-ssd mod_src_build]$ conan create ../modified_src/ includeos/latest -pr gcc-8.2.0-linux-aarch64
+Exporting package recipe
+includeos/0.14.2-1208@includeos/latest: Repo origin deduced by 'auto': https://github.com/IncludeOS/IncludeOS.git
+includeos/0.14.2-1208@includeos/latest: WARN: Repo status is not pristine: there might be modified files
+includeos/0.14.2-1208@includeos/latest: Revision deduced by 'auto': 7f4049a5a45f91a99cc059520c768acf33807085
+includeos/0.14.2-1208@includeos/latest: A new conanfile.py version was exported
+includeos/0.14.2-1208@includeos/latest: Folder: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/export
+Configuration:
+[settings]
+arch=armv8
+arch_build=x86_64
+build_type=Release
+compiler=gcc
+compiler.libcxx=libstdc++11
+compiler.version=8
+os=Linux
+os_build=Linux
+[options]
+[build_requires]
+*: binutils/2.31@includeos/toolchain
+[env]
+CC=aarch64-linux-gnu-gcc-8
+CFLAGS=-mcpu=cortex-a53 -O2 -g
+CXX=aarch64-linux-gnu-g++-8
+CXXFLAGS=-mcpu=cortex-a53 -O2 -g
+includeos/0.14.2-1208@includeos/latest: WARN: Forced build from source
+Version ranges solved
+    Version range '>=1.0.0' required by 'python_require' resolved to 'conan-tools/1.0.0@includeos/stable'
+    Version range '>=5.0' required by 'includeos/0.14.2-1208@includeos/latest' resolved to 'libcxx/7.0.1@includeos/stable'
+    Version range '>=1.1.18' required by 'libcxx/7.0.1@includeos/stable' resolved to 'musl/1.1.18@includeos/stable'
+
+Installing package: includeos/0.14.2-1208@includeos/latest
+Requirements
+    GSL/2.0.0@includeos/stable from 'includeos' - Cache
+    includeos/0.14.2-1208@includeos/latest from 'includeos' - Cache
+    libcxx/7.0.1@includeos/stable from 'includeos' - Cache
+    libcxxabi/7.0.1@includeos/stable from 'includeos' - Cache
+    libfdt/1.4.7@includeos/stable from 'includeos' - Cache
+    libgcc/1.0@includeos/stable from 'includeos' - Cache
+    libunwind/7.0.1@includeos/stable from 'includeos' - Cache
+    musl/1.1.18@includeos/stable from 'includeos' - Cache
+Python requires
+    conan-tools/1.0.0@includeos/stable
+Packages
+    GSL/2.0.0@includeos/stable:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9 - Cache
+    includeos/0.14.2-1208@includeos/latest:b3018e29d4dd50972873977ff12deeeb646c9d92 - Build
+    libcxx/7.0.1@includeos/stable:4680b3386fce626bbd782cd807fa700f3de361fa - Cache
+    libcxxabi/7.0.1@includeos/stable:a38d7c31d4564d43a7705539d94b1907c6418a85 - Cache
+    libfdt/1.4.7@includeos/stable:c3cd523f63cc051ff1178d8c88ede55d315cf9be - Cache
+    libgcc/1.0@includeos/stable:a38d7c31d4564d43a7705539d94b1907c6418a85 - Cache
+    libunwind/7.0.1@includeos/stable:c3cd523f63cc051ff1178d8c88ede55d315cf9be - Cache
+    musl/1.1.18@includeos/stable:d5bf95d2a20952225177c123a6a3da87fec0744b - Cache
+Build requirements
+    binutils/2.31@includeos/toolchain from 'includeos' - Cache
+Build requirements packages
+    binutils/2.31@includeos/toolchain:1907037da8323f14f8235c9a3fabcb665a84c867 - Cache
+
+Cross-build from 'Linux:x86_64' to 'Linux:armv8'
+GSL/2.0.0@includeos/stable: Already installed!
+binutils/2.31@includeos/toolchain: Already installed!
+libcxxabi/7.0.1@includeos/stable: Already installed!
+libfdt/1.4.7@includeos/stable: Already installed!
+libgcc/1.0@includeos/stable: Already installed!
+libunwind/7.0.1@includeos/stable: Already installed!
+musl/1.1.18@includeos/stable: Already installed!
+libcxx/7.0.1@includeos/stable: Already installed!
+includeos/0.14.2-1208@includeos/latest: Applying build-requirement: binutils/2.31@includeos/toolchain
+includeos/0.14.2-1208@includeos/latest: WARN: Detected 'scm' auto in conanfile, trying to remove source folder
+includeos/0.14.2-1208@includeos/latest: WARN: This can take a while for big packages
+includeos/0.14.2-1208@includeos/latest: Configuring sources in /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source
+includeos/0.14.2-1208@includeos/latest: Getting sources from folder: /home/libreliu/OS/IncludeOS-dev-new/modified_src
+includeos/0.14.2-1208@includeos/latest: Building your package in /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/build/b3018e29d4dd50972873977ff12deeeb646c9d92
+includeos/0.14.2-1208@includeos/latest: Generator cmake created conanbuildinfo.cmake
+includeos/0.14.2-1208@includeos/latest: Generator virtualenv created activate.sh
+includeos/0.14.2-1208@includeos/latest: Generator virtualenv created deactivate.sh
+includeos/0.14.2-1208@includeos/latest: Calling build()
+CMake Error at /usr/share/cmake-3.14/Modules/CMakeDetermineCCompiler.cmake:49 (message):
+  Could not find compiler set in environment variable CC:
+
+  aarch64-linux-gnu-gcc-8.
+Call Stack (most recent call first):
+  CMakeLists.txt:6 (project)
+
+
+CMake Error: CMAKE_C_COMPILER not set, after EnableLanguage
+CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage
+-- Configuring incomplete, errors occurred!
+See also "/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/build/b3018e29d4dd50972873977ff12deeeb646c9d92/CMakeFiles/CMakeOutput.log".
+includeos/0.14.2-1208@includeos/latest: 
+includeos/0.14.2-1208@includeos/latest: ERROR: Package 'b3018e29d4dd50972873977ff12deeeb646c9d92' build failed
+includeos/0.14.2-1208@includeos/latest: WARN: Build folder /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/build/b3018e29d4dd50972873977ff12deeeb646c9d92
+ERROR: includeos/0.14.2-1208@includeos/latest: Error in build() method, line 84
+	cmake=self._configure_cmake()
+while calling '_configure_cmake', line 80
+	cmake.configure(source_folder=self.source_folder)
+	ConanException: Error 256 while executing cd '/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/build/b3018e29d4dd50972873977ff12deeeb646c9d92' && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DCONAN_EXPORTED="1" -DCONAN_IN_LOCAL_CACHE="ON" -DCONAN_COMPILER="gcc" -DCONAN_COMPILER_VERSION="8" -DCMAKE_INSTALL_PREFIX="/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92" -DCMAKE_INSTALL_BINDIR="bin" -DCMAKE_INSTALL_SBINDIR="bin" -DCMAKE_INSTALL_LIBEXECDIR="bin" -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_INSTALL_INCLUDEDIR="include" -DCMAKE_INSTALL_OLDINCLUDEDIR="include" -DCMAKE_INSTALL_DATAROOTDIR="share" -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY="ON" -DVERSION="0.14.2-1208" -DPLATFORM="default" -DSMP="False" -Wno-dev '/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source'
+```
+> 这里可以发现，`activate.sh` 是 virtualenv 包提供的..
+
+应该是没加载`activate.sh`，试试
+
+还是不行，改一下 profile 里面的 env，去掉 `-8`
+
+这回可以了：
+```
+...(skip some lines)... # 这里包括编译 (CMake) 和 Install（CMake Install 似乎会被 conan 重载，安装到这个pkg的地方里）
+/package/b3018e29d4dd50972873977ff12deeeb646c9d92/aarch64/lib/libarch.a
+-- Installing: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/aarch64/linker.ld
+-- Installing: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/platform/libaarch64_default.a
+-- Installing: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a
+includeos/0.14.2-1208@includeos/latest package(): Packaged 4 '.a' files: libarch.a, libmusl_syscalls.a, libos.a, libaarch64_default.a
+includeos/0.14.2-1208@includeos/latest package(): Packaged 1 '.ld' file: linker.ld
+includeos/0.14.2-1208@includeos/latest package(): Packaged 3 '.cmake' files: includeos.cmake, linux.service.cmake, os.cmake
+includeos/0.14.2-1208@includeos/latest package(): Packaged 246 '.hpp' files
+includeos/0.14.2-1208@includeos/latest package(): Packaged 40 files
+includeos/0.14.2-1208@includeos/latest package(): Packaged 4 '.h' files: multiboot.h, auxvec.h, stddef.h, memstream.h
+includeos/0.14.2-1208@includeos/latest package(): Packaged 2 '.inc' files: connection.inc, elf_binary.inc
+includeos/0.14.2-1208@includeos/latest package(): Packaged 1 '.cpp' file: service_name.cpp
+includeos/0.14.2-1208@includeos/latest package(): Packaged 2 '.asm' files: empty.asm, memdisk.asm
+includeos/0.14.2-1208@includeos/latest package(): Packaged 1 '.py' file: memdisk.py
+includeos/0.14.2-1208@includeos/latest: Package 'b3018e29d4dd50972873977ff12deeeb646c9d92' created
+includeos/0.14.2-1208@includeos/latest: Created package revision 8e906c46f3b5abdd520cda5842434c0a
+(conanenv) [libreliu@thinkpad-ssd mod_src_build]$ 
+```
