@@ -451,3 +451,171 @@ long syscall_SYS_write(int fd, char* str, size_t len) {
 其它的应该会用这个 `FD_map` 类获得对应的写函数；猜测它会和 `fs` 耦合在一起。
 
 总之破案啦！顺带知道了 `syscall` 的调用过程；musl 和平台相关的东西也不是很多，大部分是这件事而已了233
+
+## `OS::print` 和 `os_add_stdout` (CMake Macro) 探查
+
+`OS::print` 位于 `src/kernel/kernel.cpp`，罗列如下：
+```c
+void os::print(const char* str, const size_t len)
+{
+  if (UNLIKELY(! kernel::libc_initialized())) {
+    // ** 注意！IncludeOS 新版本中把 os:: 的一部分功能放到了 kernel:: 中 **
+    // 在没用 Conan 的那个版本，这里是 os::default_stdout(str, len)
+    kernel::default_stdout(str, len);
+    return;
+  }
+
+  /** TIMESTAMPING **/
+  if (kernel::timestamps() && kernel::timestamps_ready() && !kernel::is_panicking())
+  {
+    static bool apply_ts = true;
+    if (apply_ts)
+    {
+      std::string ts = "[" + isotime::now() + "] ";
+      for (const auto& callback : os_print_handlers) {
+        callback(ts.c_str(), ts.size());
+      }
+      apply_ts = false;
+    }
+    const bool has_newline = contains(str, len, '\n');
+    if (has_newline) apply_ts = true;
+  }
+  /** TIMESTAMPING **/
+
+  if (os_enable_boot_logging || kernel::is_booted() || kernel::is_panicking())
+  {
+    for (const auto& callback : os_print_handlers) {
+      callback(str, len);
+    }
+  }
+}
+```
+
+大体逻辑：先打印 `isotime.now()` 时间戳，然后依次调用 `os_print_handlers` 中的每个函数指针打印。
+
+时间戳在有新行的时候会再添加，否则不会。
+
+如果时间戳没有准备好（比如在 boot logging 阶段，或者 panicking 阶段），就会不打印时间戳直接输出。
+
+如果 libc 还没有初始化好，就用 `kernel::default_stdout` 打印。
+
+> `UNLIKELY: Declared as: __builtin_expect(!!(x), 0)` by Understand - Program Unit Cross Reference
+
+### 注册 stdout 以及 print_handlers 的实现
+
+```c
+// src/kernel/kernel.cpp
+// ** 原来没有 **
+void os::default_stdout(const char* str, size_t len)
+{
+  kernel::default_stdout(str, len);
+}
+```
+
+```c
+// src/kernel/kernel.cpp
+// ** 原来在 os.cpp **
+void OS::add_stdout(OS::print_func func)
+{
+  os_print_handlers.push_back(func);
+}
+```
+```c
+// src/kernel/kernel.cpp
+// ** 原来在 os.cpp **
+using Print_vec = Fixed_vector<OS::print_func, 8>;
+static Print_vec os_print_handlers(Fixedvector_Init::UNINIT);
+```
+
+> 我想这样摘出去可能是方便 aarch64 移植工作，emmm
+
+那么默认的 stdout 是何时添加的呢？
+
+对此，两种代码有所不同：老版代码在 `src/kernel/os.cpp`，新版代码根据架构不同放置在 `src/platform/*/` 中。
+
+以 `src/platform/aarch64_vm/os.cpp` 为例：
+
+```c
+void kernel::start(uint64_t fdt_addr) // boot_magic, uint32_t boot_addr)
+{
+  kernel::state().cmdline = Service::binary_name();
+
+  // Initialize stdout handlers
+  if(os_default_stdout) {
+    os::add_stdout(&kernel::default_stdout);
+  }
+
+  kernel::run_ctors(&__stdout_ctors_start, &__stdout_ctors_end);
+
+  // Print a fancy header
+  CAPTION("#include<os> // Literally");
+  __platform_init(fdt_addr);
+}
+```
+
+而 `os_default_stdout` 是一个 extern bool。它在哪里呢？为什么 Hello World 例程里面的 `CMakeLists.txt` 有 `os_add_stdout(hello default_stdout)` 一行呢？
+
+首先查看 `cmake/os.cmake`，它定义了 `os_add_stdout`。
+
+可以看到，`add_stdout` 就是链接一下 `src/drivers/stdout/*`。
+```
+function (os_add_stdout TARGET DRIVER)
+   os_add_library_from_path(${TARGET} ${DRIVER} "${CONAN_RES_DIRS_INCLUDEOS}/drivers/stdout")
+endfunction()
+```
+
+而在 `src/drivers/stdout/default_stdout.cpp` 有如下代码（文件不是注释的部分只有下面这一行）：
+```
+// add OS default stdout handler
+bool os_default_stdout = true;
+```
+
+那么，`default stdout` 的实现是什么呢？
+
+对于 x86 平台，一般在 `src/platform/*/os.cpp` ；在 aarch64 上它在 `src/platform/aarch64_vm/platform.cpp`。
+
+```c
+// default to serial
+void kernel::default_stdout(const char* str, const size_t len)
+{
+  __serial_print(str, len);
+}
+```
+
+而 `__serial_print` 在 src/platform/aarch64_vm/serial1.cpp`
+```c
+extern "C"
+void __serial_print(const char* str, size_t len)
+{
+  init_if_needed();
+  for (size_t i = 0; i < len; i++) {
+    *((unsigned int *) UART_BASE) = str[i];
+    /*while (not (hw::inb(port + 5) & 0x20));
+    hw::outb(port, str[i]);*/
+  }
+}
+```
+
+这段代码的 `init_if_needed` 是这个函数：
+```c
+//__attribute__((no_sanitize("all")))
+static inline void init_if_needed()
+{
+  if (initialized == true) return;
+  initialized = true;
+
+
+  /* init UART (38400 8N1) */ //maybe stick in asm as a function instead
+  /*asm volatile("ldr	x4, =%0" :: "r"(UART_BASE));		// UART base
+  asm volatile("mov	w5, #0x10");
+  asm volatile("str	w5, [x4, #0x24]");
+  asm volatile("mov	w5, #0xc300");
+  asm volatile("orr	w5, w5, #0x0001");
+  asm volatile("str	w5, [x4, #0x30]");*/
+  //unsure if this becomes sane or not. look at asm but should be exactly the same as the above comment
+  *((volatile unsigned int *) UART_BASE+0x24) = 0x10;
+  *((volatile unsigned int *) UART_BASE+0x30) = 0xC301;
+}
+```
+
+那么 printf 考古现场就到此结束了，撒花（
