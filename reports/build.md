@@ -90,4 +90,94 @@ make: *** [Makefile:84：all] 错误 2
 > 这里是不是只能 `cmake --trace` 或者 `make` 的类似 trace 功能？
 - 我尝试`cmake . -D CMAKE_C_LINK_EXECUTABLE=aarch64-linux-gnu-ld -DCMAKE_CXX_LINK_EXECUTABLE=aarch64-linux-gnu-ld` 再 `make`，没啥效果
 
+------
+更新：
+17. 把 `src/drivers/CMakeLists.txt` 改了改，现在可以编译 `libdefault_stdout.a` 了。重新打包。
+18. 调戏 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
+`cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld` works（如果不行，有些 CMake 版本需要这个：` -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"`）：
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld                                                                      
+CMake Warning:
+  No source or binary directory provided.  Both will be assumed to be the
+  same as the current working directory, but note that this warning will
+  become a fatal error in future CMake releases.
 
+
+-- Conan: Adjusting output directories
+-- Conan: Using cmake global configuration
+-- Conan: Adjusting default RPATHs Conan policies
+-- Conan: Adjusting language standard
+-- Current conanbuildinfo.cmake directory: /home/libreliu/OS/IncludeOS-dev-new/hello_world
+-- Conan: Compiler GCC>=5, checking major version 8
+-- Conan: Checking correct version: 8
+-- Library os found /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a
+-- Library arch not found in package, might be system one
+-- Library musl_syscalls found /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a
+-- Library aarch64_pc not found in package, might be system one
+-- Library c++ found /home/libreliu/.conan/data/libcxx/7.0.1/includeos/stable/package/4680b3386fce626bbd782cd807fa700f3de361fa/lib/libc++.a
+-- Library c++experimental found /home/libreliu/.conan/data/libcxx/7.0.1/includeos/stable/package/4680b3386fce626bbd782cd807fa700f3de361fa/lib/libc++experimental.a
+-- Library compiler found /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a
+-- Library fdt found /home/libreliu/.conan/data/libfdt/1.4.7/includeos/stable/package/c3cd523f63cc051ff1178d8c88ede55d315cf9be/lib/libfdt.a
+-- Library c found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a
+-- Library crypt found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libcrypt.a
+-- Library m found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libm.a
+-- Library rt found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/librt.a
+-- Library dl found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libdl.a
+-- Library pthread found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libpthread.a
+-- Library resolv found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libresolv.a
+-- Library util found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libutil.a
+-- Library xnet found /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libxnet.a
+-- Library unwind found /home/libreliu/.conan/data/libunwind/7.0.1/includeos/stable/package/c3cd523f63cc051ff1178d8c88ede55d315cf9be/lib/libunwind.a
+-- Library c++abi found /home/libreliu/.conan/data/libcxxabi/7.0.1/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libc++abi.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/libreliu/OS/IncludeOS-dev-new/hello_world
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: cannot open linker script file /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/linker.ld: No such file or directory
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
+make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
+make: *** [Makefile:84: all] Error 2
+```
+把 src/arch/aarch64 那个拷进去，就会出
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: cannot find -larch
+/usr/bin/aarch64-linux-gnu-ld: cannot find -laarch64_pc
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
+make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
+make: *** [Makefile:84: all] Error 2
+```
+
+这个问题是因为 Linker 的相关设定是在 `cmake/os.cmake`：
+```cmake
+set(LINK_SCRIPT ${CONAN_RES_DIRS_INCLUDEOS}/linker.ld)
+#includeos package can provide this!
+include_directories(
+  ${CONAN_RES_DIRS_INCLUDEOS}/include/os
+)
+
+# TODO: find a more proper way to get the linker.ld script ?
+if("${ARCH}" STREQUAL "aarch64")
+  set(LDFLAGS "-nostdlib -m${ELF}elf --eh-frame-hdr ${LD_STRIP} --script=${LINK_SCRIPT} ${PROD_USE} ${PRE_BSS_SIZE}")
+else()
+  set(LDFLAGS "-nostdlib -melf_${ELF} --eh-frame-hdr ${LD_STRIP} --script=${LINK_SCRIPT} ${PROD_USE} ${PRE_BSS_SIZE}")
+endif()
+```
+而安装 Linker Script 的事情是在 `src/arch/i686/CMakeLists.txt` 处理的：
+```cmake
+set_target_properties(arch PROPERTIES LINKER_LANGUAGE CXX)
+install(TARGETS arch DESTINATION lib)
+install(FILES linker.ld DESTINATION .)
+configure_file(linker.ld ${CMAKE_BINARY_DIR})
+```
+而 AArch64 的实现稍有不同：`src/arch/aarch64/CMakeLists.txt`：
+```cmake
+set_target_properties(arch PROPERTIES LINKER_LANGUAGE CXX)
+configure_file(linker.ld ${CMAKE_BINARY_DIR})
+install(TARGETS arch DESTINATION ${ARCH}/lib)
+install(FILES linker.ld DESTINATION ${ARCH})
+```
+所以 linker.ld 和 libarch.a 被装在了包的 `aarch64` 目录下面，难怪找不到。
+> 改一下 os.cmake 试一下。
