@@ -181,3 +181,245 @@ install(FILES linker.ld DESTINATION ${ARCH})
 ```
 所以 linker.ld 和 libarch.a 被装在了包的 `aarch64` 目录下面，难怪找不到。
 > 改一下 os.cmake 试一下。
+
+
+
+-----
+
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+Scanning dependencies of target hello.elf.bin
+[ 25%] Building CXX object CMakeFiles/hello.elf.bin.dir/main.cpp.o
+[ 50%] Building CXX object CMakeFiles/hello.elf.bin.dir/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/src/service_name.cpp.o
+[ 75%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(vfprintf.lo): in function `pop_arg':
+vfprintf.c:(.text.pop_arg+0x11c): undefined reference to `__extenddftf2'
+vfprintf.c:(.text.pop_arg+0x11c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(vfprintf.lo): in function `fmt_fp':
+vfprintf.c:(.text.fmt_fp+0xc0): undefined reference to `__addtf3'
+vfprintf.c:(.text.fmt_fp+0xc0): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0xe0): undefined reference to `__netf2'
+vfprintf.c:(.text.fmt_fp+0xe0): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x118): undefined reference to `__netf2'
+vfprintf.c:(.text.fmt_fp+0x118): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x14c): undefined reference to `__fixunstfsi'
+vfprintf.c:(.text.fmt_fp+0x14c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__fixunstfsi'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x154): undefined reference to `__floatunsitf'
+vfprintf.c:(.text.fmt_fp+0x154): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x168): undefined reference to `__subtf3'
+vfprintf.c:(.text.fmt_fp+0x168): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x178): undefined reference to `__multf3'
+vfprintf.c:(.text.fmt_fp+0x178): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x198): undefined reference to `__netf2'
+vfprintf.c:(.text.fmt_fp+0x198): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x47c): undefined reference to `__addtf3'
+vfprintf.c:(.text.fmt_fp+0x47c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x490): undefined reference to `__netf2'
+vfprintf.c:(.text.fmt_fp+0x490): additional relocation overflows omitted from the output
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x7fc): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x828): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x834): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x8fc): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x914): undefined reference to `__fixtfsi'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x924): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x938): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x948): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x980): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0xb4c): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0xc3c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x1614): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x162c): undefined reference to `__fixtfsi'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x163c): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x1650): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x1660): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x1cd8): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: vfprintf.c:(.text.fmt_fp+0x1ce8): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(strtod.lo): in function `strtof_l':
+strtod.c:(.text.strtof+0x6c): undefined reference to `__trunctfsf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(strtod.lo): in function `strtod_l':
+strtod.c:(.text.strtod+0x6c): undefined reference to `__trunctfdf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(wcstod.lo): in function `wcstof':
+wcstod.c:(.text.wcstof+0xc): undefined reference to `__trunctfsf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(wcstod.lo): in function `wcstod':
+wcstod.c:(.text.wcstod+0xc): undefined reference to `__trunctfdf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(floatscan.lo): in function `decfloat':
+floatscan.c:(.text.decfloat+0x21c): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x228): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x238): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x330): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x4ac): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x500): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x50c): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x514): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x524): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x828): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x830): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x858): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x870): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x878): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x8a4): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x8b8): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x8c0): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x8e8): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x904): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x90c): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x914): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x958): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x978): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x994): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x9a0): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x9e4): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0x9f0): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xa20): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xa28): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xb08): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xb18): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xb28): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xb34): undefined reference to `__trunctfdf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xb6c): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xbc8): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xbd8): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xbe8): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xc08): undefined reference to `__eqtf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xc20): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xc5c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xc90): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xc98): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xce0): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xcec): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xd00): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.decfloat+0xd10): undefined reference to `__divtf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(floatscan.lo): in function `__floatscan':
+floatscan.c:(.text.__floatscan+0x738): undefined reference to `__getf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x758): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x764): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x7b4): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x7c0): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x7e4): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x804): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x810): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x81c): undefined reference to `__floatunsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x828): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x830): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x83c): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x844): undefined reference to `__subtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x850): undefined reference to `__eqtf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x88c): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x89c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x8ac): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x90c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x918): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x920): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x92c): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x964): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x970): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x9a4): undefined reference to `__addtf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0x9d8): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0xb04): undefined reference to `__floatsitf'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0xb14): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: floatscan.c:(.text.__floatscan+0xb24): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(fmodl.lo): in function `fmodl':
+fmodl.c:(.text.fmodl+0x28): undefined reference to `__eqtf2'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x38): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x40): undefined reference to `__divtf3'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0xb0): undefined reference to `__letf2'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0xdc): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x10c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x188): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x1ac): undefined reference to `__eqtf2'
+/usr/bin/aarch64-linux-gnu-ld: fmodl.c:(.text.fmodl+0x268): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(frexpl.lo): in function `frexpl':
+frexpl.c:(.text.frexpl+0x70): undefined reference to `__netf2'
+/usr/bin/aarch64-linux-gnu-ld: frexpl.c:(.text.frexpl+0xa4): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(scalbnl.lo): in function `scalbnl':
+scalbnl.c:(.text.scalbnl+0x28): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: scalbnl.c:(.text.scalbnl+0x4c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: scalbnl.c:(.text.scalbnl+0x7c): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: scalbnl.c:(.text.scalbnl+0xb4): undefined reference to `__multf3'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(scalbnl.lo):scalbnl.c:(.text.scalbnl+0xd8): more undefined references to `__multf3' follow
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(vfscanf.lo): in function `__isoc99_vfscanf':
+vfscanf.c:(.text.vfscanf+0x890): undefined reference to `__trunctfsf2'
+/usr/bin/aarch64-linux-gnu-ld: vfscanf.c:(.text.vfscanf+0xd60): undefined reference to `__trunctfdf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(vfwprintf.lo): in function `pop_arg':
+vfwprintf.c:(.text.pop_arg+0x11c): undefined reference to `__extenddftf2'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libos.a(c_abi.c.o): in function `_move_symbols':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/crt/c_abi.c:37: undefined reference to `_get_elf_section_datasize'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/crt/c_abi.c:41: undefined reference to `_move_elf_syms_location'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(writev.cpp.o): in function `sys_writev':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/writev.cpp:13: undefined reference to `os::print(char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(mmap.cpp.o): in function `kalloc':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/mmap.cpp:30: undefined reference to `kernel::heap_ready()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(mmap.cpp.o): in function `__expect_fail(char const*, char const*, int, char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/common:70: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::VFS_entry& fs::VFS::get_entry<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364: undefined reference to `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::Dirent fs::VFS::stat_sync<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:392: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:396: undefined reference to `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD& FD_map::open<File_FD, fs::Dirent&>(fs::Dirent&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/fd_map.hpp:95: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD::File_FD(int, fs::Dirent, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o): in function `sys_kill(int, int)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:5: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o): in function `sys_tkill(int, int)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:12: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o): in function `sys_tgkill(int, int, int)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:16: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o): in function `sys_kill(int, int)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:5: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o): in function `sys_tkill(int, int)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:12: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(kill.cpp.o):/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/kill.cpp:16: more undefined references to `os::panic(char const*)' follow
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(platform.cpp.o): in function `__platform_init(unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:59: undefined reference to `Events::get(int)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:59: undefined reference to `Events::init_local()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:73: undefined reference to `Timers::init(delegate<void (std::__1::chrono::duration<long long, std::__1::ratio<1l, 1000000000l> >), spec::inplace, 32ul, 16ul> const&, delegate<void (), spec::inplace, 32ul, 16ul> const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:99: undefined reference to `Timers::timers_handler()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:99: undefined reference to `Timers::timers_handler()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:114: undefined reference to `RTC::init()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:116: undefined reference to `Timers::ready()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(platform.cpp.o): in function `RNG::init()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/platform.cpp:133: undefined reference to `rng_absorb(void const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(kernel_start.cpp.o): in function `kernel_start':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:237: undefined reference to `os::Machine::create(void*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:239: undefined reference to `_init_elf_parser'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:241: undefined reference to `os::Machine::init()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:244: undefined reference to `_init_syscalls'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(init_libc.cpp.o): in function `kernel_main':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/init_libc.cpp:39: undefined reference to `kernel::state()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/init_libc.cpp:64: undefined reference to `kernel::post_start()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(init_libc.cpp.o): in function `aarch64::init_libc(unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/init_libc.cpp:105: undefined reference to `Service::name()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(init_libc.cpp.o): in function `rng_extract_uint64()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/kernel/rng.hpp:48: undefined reference to `rng_extract(void*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(sanity_checks.cpp.o): in function `kernel_sanity_checks':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/sanity_checks.cpp:69: undefined reference to `Elf::verify_symbols()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/sanity_checks.cpp:71: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/sanity_checks.cpp:76: undefined reference to `os::panic(char const*)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(os.cpp.o): in function `os::nanos_asleep()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:22: undefined reference to `os::cpu_freq()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(os.cpp.o): in function `kernel::start(unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:31: undefined reference to `Service::binary_name()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:31: undefined reference to `kernel::state()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:35: undefined reference to `os::add_stdout(delegate<void (char const*, unsigned long), spec::inplace, 32ul, 16ul>)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(os.cpp.o): in function `os::event_loop()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:66: undefined reference to `Events::get(int)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:66: undefined reference to `Events::process_events()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:69: undefined reference to `Events::get(int)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:69: undefined reference to `Events::process_events()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(os.cpp.o): in function `kernel::is_running()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/include/kernel.hpp:54: undefined reference to `kernel::state()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/platform/libaarch64_default.a(os.cpp.o): in function `os::event_loop()':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/os.cpp:73: undefined reference to `Service::stop()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/musl/1.1.18/includeos/stable/package/d5bf95d2a20952225177c123a6a3da87fec0744b/lib/libc.a(_Exit.lo): in function `_Exit':
+_Exit.c:(.text._Exit+0xc): undefined reference to `syscall_SYS_exit_group'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/43d207b59cc47a081f1cd51c720df4739cb1654a/lib/libmusl_syscalls.a(exit.cpp.o): in function `sys_exit':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/musl/exit.cpp:10: undefined reference to `os::print(char const*, unsigned long)'
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
+make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
+make: *** [Makefile:84: all] Error 2
+```
