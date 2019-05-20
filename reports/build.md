@@ -183,7 +183,6 @@ install(FILES linker.ld DESTINATION ${ARCH})
 > 改一下 os.cmake 试一下。
 
 
-
 -----
 
 ```
@@ -425,3 +424,177 @@ make: *** [Makefile:84: all] Error 2
 ```
 
 libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
+
+直接替换对应的 package 之后：
+
+```
+[libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a: error adding symbols: file in wrong format
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+```
+
+```
+[libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `ElfTables::verify_symbols() const':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:176: undefined reference to `crc32_fast(void const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:176:(.text+0x674): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32_fast(void const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:182: undefined reference to `crc32_fast(void const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:182:(.text+0x6ac): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32_fast(void const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `crc32c(void const*, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xaf0): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb1c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb34): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb74): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xcd8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o):/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: more undefined references to `crc32c_sw(unsigned int, char const*, unsigned long)' follow
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `crc32c(void const*, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xd20): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xd38): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::VFS_entry& fs::VFS::get_entry<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360:(.text+0x78): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364: undefined reference to `fs::Path::to_string() const'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364:(.text+0x398): additional relocation overflows omitted from the output
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::Dirent fs::VFS::stat_sync<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:392: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:396: undefined reference to `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD& FD_map::open<File_FD, fs::Dirent&>(fs::Dirent&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/fd_map.hpp:95: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD::File_FD(int, fs::Dirent, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/platform/libaarch64_default.a(kernel_start.cpp.o): in function `kernel_start':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:237: undefined reference to `os::Machine::create(void*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:241: undefined reference to `os::Machine::init()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(timers.cpp.o): in function `Timers::init(delegate<void (std::__1::chrono::duration<long long, std::__1::ratio<1l, 1000000000l> >), spec::inplace, 32ul, 16ul> const&, delegate<void (), spec::inplace, 32ul, 16ul> const&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+```
+crc 的东西在 `src/util/crc32.cpp`，所以要把 util 也编译上。 
+
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+Scanning dependencies of target hello.elf.bin
+[ 25%] Building CXX object CMakeFiles/hello.elf.bin.dir/main.cpp.o
+[ 50%] Building CXX object CMakeFiles/hello.elf.bin.dir/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/src/service_name.cpp.o
+[ 75%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `ElfTables::verify_symbols() const':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:176: undefined reference to `crc32_fast(void const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:176:(.text+0x674): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32_fast(void const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:182: undefined reference to `crc32_fast(void const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/elf.cpp:182:(.text+0x6ac): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32_fast(void const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `crc32c(void const*, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xaf0): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb1c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb34): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xb74): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: undefined reference to `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xcd8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o):/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100: more undefined references to `crc32c_sw(unsigned int, char const*, unsigned long)' follow
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(elf.cpp.o): in function `crc32c(void const*, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xd20): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/util/crc32.hpp:100:(.text+0xd38): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `crc32c_sw(unsigned int, char const*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::VFS_entry& fs::VFS::get_entry<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360:(.text+0x78): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364: undefined reference to `fs::Path::to_string() const'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364:(.text+0x398): additional relocation overflows omitted from the output
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::Dirent fs::VFS::stat_sync<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:392: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:396: undefined reference to `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD& FD_map::open<File_FD, fs::Dirent&>(fs::Dirent&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/fd_map.hpp:95: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD::File_FD(int, fs::Dirent, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/platform/libaarch64_default.a(kernel_start.cpp.o): in function `kernel_start':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:237: undefined reference to `os::Machine::create(void*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:241: undefined reference to `os::Machine::init()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(timers.cpp.o): in function `Timers::init(delegate<void (std::__1::chrono::duration<long long, std::__1::ratio<1l, 1000000000l> >), spec::inplace, 32ul, 16ul> const&, delegate<void (), spec::inplace, 32ul, 16ul> const&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ 
+```
+在 util 里面，加上 crc32.cpp 后：
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+Scanning dependencies of target hello.elf.bin
+[ 25%] Building CXX object CMakeFiles/hello.elf.bin.dir/main.cpp.o
+[ 50%] Building CXX object CMakeFiles/hello.elf.bin.dir/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/src/service_name.cpp.o
+[ 75%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::VFS_entry& fs::VFS::get_entry<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:360:(.text+0x78): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364: undefined reference to `fs::Path::to_string() const'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:364:(.text+0x398): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `fs::Dirent fs::VFS::stat_sync<char const*>(char const*)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:392: undefined reference to `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:392:(.text._ZN2fs3VFS9stat_syncIPKcEENS_6DirentET_[_ZN2fs3VFS9stat_syncIPKcEENS_6DirentET_]+0x74): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::Path(std::initializer_list<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:396: undefined reference to `fs::Path::to_string() const'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/fs/vfs.hpp:396:(.text._ZN2fs3VFS9stat_syncIPKcEENS_6DirentET_[_ZN2fs3VFS9stat_syncIPKcEENS_6DirentET_]+0x48c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Path::to_string() const'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD& FD_map::open<File_FD, fs::Dirent&>(fs::Dirent&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/fd_map.hpp:95: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/fd_map.hpp:95:(.text._ZN6FD_map4openI7File_FDJRN2fs6DirentEEEERT_DpOT0_[_ZN6FD_map4openI7File_FDJRN2fs6DirentEEEERT_DpOT0_]+0x3c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libmusl_syscalls.a(open.cpp.o): in function `File_FD::File_FD(int, fs::Dirent, unsigned long)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `vtable for File_FD'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28: undefined reference to `fs::Dirent::Dirent(fs::Dirent const&)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/../api/posix/file_fd.hpp:28:(.text._ZN6FD_map4openI7File_FDJRN2fs6DirentEEEERT_DpOT0_[_ZN6FD_map4openI7File_FDJRN2fs6DirentEEEERT_DpOT0_]+0x64): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `fs::Dirent::Dirent(fs::Dirent const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/platform/libaarch64_default.a(kernel_start.cpp.o): in function `kernel_start':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:237: undefined reference to `os::Machine::create(void*, unsigned long)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:237:(.text+0xadc): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `os::Machine::create(void*, unsigned long)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:241: undefined reference to `os::Machine::init()'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/platform/aarch64_vm/kernel_start.cpp:241:(.text+0xaec): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `os::Machine::init()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/lib/libos.a(timers.cpp.o): in function `Timers::init(delegate<void (std::__1::chrono::duration<long long, std::__1::ratio<1l, 1000000000l> >), spec::inplace, 32ul, 16ul> const&, delegate<void (), spec::inplace, 32ul, 16ul> const&)':
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::get()'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110:(.text+0x288): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:110:(.text+0x2b0): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::get()'
+/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111:(.text+0x2d0): additional relocation overflows omitted from the output
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:111: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:112: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::get()'
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/source/src/kernel/timers.cpp:113: undefined reference to `Statman::create(Stat::Stat_type, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)'
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ 
+```
+
