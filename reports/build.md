@@ -423,3 +423,5 @@ make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Er
 make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
 make: *** [Makefile:84: all] Error 2
 ```
+
+libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
