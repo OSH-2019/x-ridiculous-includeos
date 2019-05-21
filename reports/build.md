@@ -93,6 +93,7 @@ make: *** [Makefile:84：all] 错误 2
 ------
 更新：
 17. 把 `src/drivers/CMakeLists.txt` 改了改，现在可以编译 `libdefault_stdout.a` 了。重新打包。
+
 18. 调戏 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
 `cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld` works（如果不行，有些 CMake 版本需要这个：` -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"`）：
 ```
@@ -139,18 +140,9 @@ make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Er
 make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
 make: *** [Makefile:84: all] Error 2
 ```
-把 src/arch/aarch64 那个拷进去，就会出
-```
-(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
-[ 25%] Linking CXX executable bin/hello.elf.bin
-/usr/bin/aarch64-linux-gnu-ld: cannot find -larch
-/usr/bin/aarch64-linux-gnu-ld: cannot find -laarch64_pc
-make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
-make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
-make: *** [Makefile:84: all] Error 2
-```
 
-这个问题是因为 Linker 的相关设定是在 `cmake/os.cmake`：
+19. 解决找不到 linker.ld 的问题：
+  - 因为 Linker 的相关设定在 `cmake/os.cmake`：
 ```cmake
 set(LINK_SCRIPT ${CONAN_RES_DIRS_INCLUDEOS}/linker.ld)
 #includeos package can provide this!
@@ -180,11 +172,35 @@ install(TARGETS arch DESTINATION ${ARCH}/lib)
 install(FILES linker.ld DESTINATION ${ARCH})
 ```
 所以 linker.ld 和 libarch.a 被装在了包的 `aarch64` 目录下面，难怪找不到。
-> 改一下 os.cmake 试一下。
+> 改一下 `os.cmake` 试一下。
+增加几句：
+```
+if("${ARCH}" STREQUAL "aarch64")
+  set(LINK_SCRIPT ${CONAN_RES_DIRS_INCLUDEOS}/aarch64/linker.ld)
+else()
+  set(LINK_SCRIPT ${CONAN_RES_DIRS_INCLUDEOS}/linker.ld)
+endif()
+```
+这样就可以使用正确的 linker.ld 了。 （其实感觉是 RES_DIRS 应该改动，在 `conanfile.py` 那里）
 
+然后应该会出现找不到 `aarch64_pc` 库，这是因为链接了错误的库（ `conanfile.py` 的 lib dependencies）：
+```python
+        platform = {
+            #'default' : '{}_pc'.format(self._target_arch()),
+            'default' : 'aarch64_default',
+            'nano' : '{}_nano'.format(self._target_arch()),
+            'solo5-hvt' : '{}_solo5-hvt'.format(self._target_arch()),
+            'solo5-spt' : '{}_solo5-spt'.format(self._target_arch()),
+            'userspace' : '{}_userspace'.format(self._target_arch())
+        }
+```
+如此改动便好（因为要链接的是`libaarch64_default.a`），记得重新 `conan create`。
 
------
+然后应该会报告找不到 `arch` 库（`-larch` 错误）
 
+我的解决方案是先添加 `link_directories(/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/aarch64/lib/)`（路径不一样的话请自行更换）到 `hello_world` 的 `CMakeLists.txt` 中。
+
+20. 编译结果如下：
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ make
 Scanning dependencies of target hello.elf.bin
@@ -491,7 +507,7 @@ make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] �
 make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
 make: *** [Makefile:84：all] 错误 2
 ```
-crc 的东西在 `src/util/crc32.cpp`，所以要把 util 也编译上。 
+21. 首先解决 crc32 的问题：crc 的东西在 `src/util/crc32.cpp`，所以要把 util 也编译上，但是只编译 crc32。 
 
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ make
@@ -597,4 +613,37 @@ make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误
 make: *** [Makefile:84：all] 错误 2
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ 
 ```
+22. 其他问题：
+- musl open syscall（`src/musl/open.cpp`）
+  - fs::Path::Path 等，直接注释掉（在`src/musl/open.cpp`）
+- kernel_start.cpp
+  - os::Machine::create(void*, unsigned long) 等，加上 hal 的编译（在 `src/CMakeLists.txt`）
+- src/kernel/timers.cpp
+  - Statman::get() 等，把 /src/util/statman.cpp 弄回来（在 `src/util/CMakeLists.txt`）
 
+23. 现在 `make`，即可得到如下结果：
+```
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ make
+Scanning dependencies of target hello.elf.bin
+[ 25%] Building CXX object CMakeFiles/hello.elf.bin.dir/main.cpp.o
+[ 50%] Building CXX object CMakeFiles/hello.elf.bin.dir/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/src/service_name.cpp.o
+[ 75%] Linking CXX executable bin/hello.elf.bin
+[ 75%] Built target hello.elf.bin
+Scanning dependencies of target hello
+[100%] elf.syms
+/home/libreliu/.conan/data/vmbuild/0.15.0/includeos/stable/package/44fcf6b9a7fb86b2586303e3db40189d3b511830/bin/elf_syms: Pruning ELF symbols 
+ELF symbols: 5ef826e7  ELF strings: 52ab611b  ELF section: a6a22a76
+/usr/bin/objcopy: Unable to recognise the format of the input file `/home/libreliu/OS/IncludeOS-dev-new/hello_world/bin/hello.elf.bin'
+make[2]: *** [CMakeFiles/hello.dir/build.make:59：CMakeFiles/hello] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:110：CMakeFiles/hello.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+(conanenv) [libreliu@thinkpad-ssd hello_world]$ 
+```
+`objcopy` 的结果是错的，但是不要紧（显然是 vmbuilder 还没适配 aarch64）。
+
+在 `bin/` 下是我们的文件 `hello.elf.bin`，用 `aarch64-linux-gnu-objdump -x hello.elf.bin` 可以看到文件格式和符号等。（推荐 GUI：`ObjGui`）
+
+只要仿照 OSH-2019 Lab1 进行 `aarch64-linux-gnu-objcopy hello.elf.bin -O binary test.img` 就可以用来测试了。
+
+-----
+## 配置 QEMU
