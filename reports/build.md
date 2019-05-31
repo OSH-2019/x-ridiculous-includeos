@@ -21,7 +21,7 @@
 #### 紫檀同学的尝试
 
 1. `git clone https://github.com/IncludeOS/IncludeOS.git -b dev`
-2. `cd IncludeOS && make ../deployed_src`
+2. `cd IncludeOS && mkdir ../deployed_src`
 3. `conan source . --source-folder=../deployed_src`
   - 其实这步是冗余的，因为 IncludeOS 这个包没有配置「external sources」，所以调用 `source` 并不会增加任何新东西，而在复制到另一个 Source Folder 的过程中会损失掉 `.git` 目录；IncludeOS 的 `conanfile.py` 中确定版本号的方式是采用 git 版本串的一部分作自增，自动生成一个合适的版本号，而没有这个版本号信息会在创建 IncludeOS 包的步骤中（即 `conan create`）出问题。
 4. `cd .. && cp -r deployed_src/ modified_src/ && cd modified_src`
