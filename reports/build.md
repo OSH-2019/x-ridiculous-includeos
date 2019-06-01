@@ -655,3 +655,9 @@ make: *** [Makefile:84：all] 错误 2
 
 -----
 ## 配置 QEMU
+
+安装 `qemu-system-aarch64`, 选择 `raspi3` 机型即可 (此处 `raspi3` 指 AArch64, 如果用 armhf 就用 `raspi2`)。
+
+用 `qemu-system-aarch64 -M raspi3 -kernel <镜像文件名称> -d nochain -d in_asm` 运行. `-d in_asm` 可以显示所有被运行(翻译)的 Translate Block 的原来的汇编, 可用于最初步的调试. `-d nochain` 可以阻止`QEMU`复用之前的翻译结果. 
+
+运行的程序会被装载到 `0x80000` 地址处, 与 `armhf` 架构不同, 请注意。
