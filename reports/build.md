@@ -65,7 +65,7 @@
 
 12. `git clone https://github.com/Includeos/hello_world.git`
   - 它的官网里面的仓库有些不要 Conan （给 master 用的），有些要（给现在还正在 dev 的这个分支准备的）。
-13. `cd hello_world && mkdir my_build && cd my)build`
+13. `cd hello_world && mkdir my_build && cd my build`
   - 这个是方便隔离 CMake 产生的众多的临时文件（是写 CMake 项目时候编译的常规操作）
   - 这时候尝试 `cmake ..` CMake 会提示没找到 `conda_basic_setup` 这个宏（函数），这个函数在 `conanbuildinfo.cmake` 里面，但是因为还没有 `conan install` 故而没有。
 14. `conan install .. -pr gcc-8.2.0-linux-aarch64 && source activate.sh`
@@ -94,7 +94,7 @@ make: *** [Makefile:84：all] 错误 2
 更新：
 17. 把 `src/drivers/CMakeLists.txt` 改了改，现在可以编译 `libdefault_stdout.a` 了。重新打包。
 
-18. 调戏 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
+18. 调试 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
 `cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld` works（如果不行，有些 CMake 版本需要这个：` -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"`）：
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld                                                                      
