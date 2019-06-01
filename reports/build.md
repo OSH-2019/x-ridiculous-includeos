@@ -201,6 +201,21 @@ endif()
 我的解决方案是先添加 `link_directories(/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/aarch64/lib/)`（路径不一样的话请自行更换）到 `hello_world` 的 `CMakeLists.txt` 中。
 
 20. 编译结果如下：
+
+```
+[libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a: error adding symbols: file in wrong format
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+```
+libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
+
+直接替换对应的 package 之后：
+
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ make
 Scanning dependencies of target hello.elf.bin
@@ -437,21 +452,6 @@ _Exit.c:(.text._Exit+0xc): undefined reference to `syscall_SYS_exit_group'
 make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
 make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
 make: *** [Makefile:84: all] Error 2
-```
-
-libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
-
-直接替换对应的 package 之后：
-
-```
-[libreliu@thinkpad-ssd hello_world]$ make
-[ 25%] Linking CXX executable bin/hello.elf.bin
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a: error adding symbols: file in wrong format
-make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
-make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
-make: *** [Makefile:84：all] 错误 2
 ```
 
 ```
