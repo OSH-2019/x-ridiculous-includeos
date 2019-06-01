@@ -20,8 +20,16 @@
 
 #### 紫檀同学的尝试
 
+首先安装依赖和工具
+```bash
+$ sudo apt-get install gcc-8-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+$ sudo apt-get install python3-pip python3-dev git cmake clang-6.0 gcc nasm make qemu
+$ pip3 install setuptools wheel conan psutil jsonschema
+$ conan config install https://github.com/includeos/conan_config.git
+```
+
 1. `git clone https://github.com/IncludeOS/IncludeOS.git -b dev`
-2. `cd IncludeOS && make ../deployed_src`
+2. `cd IncludeOS && mkdir ../deployed_src`
 3. `conan source . --source-folder=../deployed_src`
   - 其实这步是冗余的，因为 IncludeOS 这个包没有配置「external sources」，所以调用 `source` 并不会增加任何新东西，而在复制到另一个 Source Folder 的过程中会损失掉 `.git` 目录；IncludeOS 的 `conanfile.py` 中确定版本号的方式是采用 git 版本串的一部分作自增，自动生成一个合适的版本号，而没有这个版本号信息会在创建 IncludeOS 包的步骤中（即 `conan create`）出问题。
 4. `cd .. && cp -r deployed_src/ modified_src/ && cd modified_src`
@@ -65,7 +73,7 @@
 
 12. `git clone https://github.com/Includeos/hello_world.git`
   - 它的官网里面的仓库有些不要 Conan （给 master 用的），有些要（给现在还正在 dev 的这个分支准备的）。
-13. `cd hello_world && mkdir my_build && cd my)build`
+13. `cd hello_world && mkdir my_build && cd my build`
   - 这个是方便隔离 CMake 产生的众多的临时文件（是写 CMake 项目时候编译的常规操作）
   - 这时候尝试 `cmake ..` CMake 会提示没找到 `conda_basic_setup` 这个宏（函数），这个函数在 `conanbuildinfo.cmake` 里面，但是因为还没有 `conan install` 故而没有。
 14. `conan install .. -pr gcc-8.2.0-linux-aarch64 && source activate.sh`
@@ -94,7 +102,7 @@ make: *** [Makefile:84：all] 错误 2
 更新：
 17. 把 `src/drivers/CMakeLists.txt` 改了改，现在可以编译 `libdefault_stdout.a` 了。重新打包。
 
-18. 调戏 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
+18. 调试 CMake：CMake 分两种变量，所以清除 Cache （`rm CMakeCache.txt`「必须要用，否则`-D`的没有效果」） 再 
 `cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld` works（如果不行，有些 CMake 版本需要这个：` -DCMAKE_CXX_LINK_EXECUTABLE="<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"`）：
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ cmake -DCMAKE_LINKER=aarch64-linux-gnu-ld                                                                      
@@ -201,6 +209,21 @@ endif()
 我的解决方案是先添加 `link_directories(/home/libreliu/.conan/data/includeos/0.14.2-1208/includeos/latest/package/b3018e29d4dd50972873977ff12deeeb646c9d92/aarch64/lib/)`（路径不一样的话请自行更换）到 `hello_world` 的 `CMakeLists.txt` 中。
 
 20. 编译结果如下：
+
+```
+[libreliu@thinkpad-ssd hello_world]$ make
+[ 25%] Linking CXX executable bin/hello.elf.bin
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
+/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a: error adding symbols: file in wrong format
+make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
+make: *** [Makefile:84：all] 错误 2
+```
+libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
+
+直接替换对应的 package 之后：
+
 ```
 (conanenv) [libreliu@thinkpad-ssd hello_world]$ make
 Scanning dependencies of target hello.elf.bin
@@ -437,21 +460,6 @@ _Exit.c:(.text._Exit+0xc): undefined reference to `syscall_SYS_exit_group'
 make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:117: bin/hello.elf.bin] Error 1
 make[1]: *** [CMakeFiles/Makefile2:73: CMakeFiles/hello.elf.bin.dir/all] Error 2
 make: *** [Makefile:84: all] Error 2
-```
-
-libgcc 可以用 aarch64-linux-gnu-gcc --print-libgcc-file-name 来搞 (`libcompiler.a`)
-
-直接替换对应的 package 之后：
-
-```
-[libreliu@thinkpad-ssd hello_world]$ make
-[ 25%] Linking CXX executable bin/hello.elf.bin
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a(addtf3.o): Relocations in generic ELF (EM: 62)
-/usr/bin/aarch64-linux-gnu-ld: /home/libreliu/.conan/data/libgcc/1.0/includeos/stable/package/a38d7c31d4564d43a7705539d94b1907c6418a85/lib/libcompiler.a: error adding symbols: file in wrong format
-make[2]: *** [CMakeFiles/hello.elf.bin.dir/build.make:118：bin/hello.elf.bin] 错误 1
-make[1]: *** [CMakeFiles/Makefile2:73：CMakeFiles/hello.elf.bin.dir/all] 错误 2
-make: *** [Makefile:84：all] 错误 2
 ```
 
 ```
