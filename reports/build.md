@@ -20,6 +20,14 @@
 
 #### 紫檀同学的尝试
 
+首先安装依赖和工具
+```bash
+$ sudo apt-get install gcc-8-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+$ sudo apt-get install python3-pip python3-dev git cmake clang-6.0 gcc nasm make qemu
+$ pip3 install setuptools wheel conan psutil jsonschema
+$ conan config install https://github.com/includeos/conan_config.git
+```
+
 1. `git clone https://github.com/IncludeOS/IncludeOS.git -b dev`
 2. `cd IncludeOS && mkdir ../deployed_src`
 3. `conan source . --source-folder=../deployed_src`
