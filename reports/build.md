@@ -673,5 +673,7 @@ make: *** [Makefile:84：all] 错误 2
 
 然后会遇到一些问题，比如 os.cmake 白改了（吐血
 
+用 editable mode 的好处在于，构建 `hello_world` 的时候不用再 `conan install` 了（好评）
+
 - build / package 文件夹的区别？一个有 aarch64/linker.ld，一个直接是 linker.ld
   - 应该是因为 -bf 是构建文件夹， -pf (package folder) 是 cmake install 到的文件夹
