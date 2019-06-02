@@ -1,4 +1,9 @@
 # 开发日志
+
+2019-06-02:
+- build / package 文件夹的区别？一个有 aarch64/linker.ld，一个直接是 linker.ld
+  - 应该是因为 -bf 是构建文件夹， -pf (package folder) 是 cmake install 到的文件夹
+
 -----
 2019-06-01:
 - 把 raspi3-tutorial 的 uart 例程整体平移到 `src/arch/aarch64` 中, 编译成功了

@@ -661,3 +661,17 @@ make: *** [Makefile:84：all] 错误 2
 用 `qemu-system-aarch64 -M raspi3 -kernel <镜像文件名称> -d nochain -d in_asm` 运行. `-d in_asm` 可以显示所有被运行(翻译)的 Translate Block 的原来的汇编, 可用于最初步的调试. `-d nochain` 可以阻止`QEMU`复用之前的翻译结果. 
 
 运行的程序会被装载到 `0x80000` 地址处, 与 `armhf` 架构不同, 请注意。
+
+
+## 设置 editable
+请参见官网 README.md
+
+- 先改 `layout.txt`
+- `conan editable add . includeos/$(conan inspect -a version . | cut -d " " -f 2)@includeos/latest --layout=etc/layout.txt`
+- `conan install -if build . -pr gcc-8.2.0-linux-aarch64`
+- `conan build -bf build .`
+
+然后会遇到一些问题，比如 os.cmake 白改了（吐血
+
+- build / package 文件夹的区别？一个有 aarch64/linker.ld，一个直接是 linker.ld
+  - 应该是因为 -bf 是构建文件夹， -pf (package folder) 是 cmake install 到的文件夹
