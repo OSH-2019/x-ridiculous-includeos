@@ -11,4 +11,4 @@ SECTIONS
 }
 ```
 
-更详细的内容请参见 http://wen00072.github.io/blog/2014/03/14/study-on-the-linker-script/。
+更详细的内容请参见 https://wen00072.github.io/blog/2014/03/14/study-on-the-linker-script/
