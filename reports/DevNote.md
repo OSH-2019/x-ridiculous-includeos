@@ -1,5 +1,12 @@
 # 开发日志
 
+2019-06-03:
+- 学习了 AArch64 Exception，分析了 exception.asm
+- 定位并修复了访问栈时产生异常的问题
+  - 修改 linker.ld 的起始地址
+- 把 __serial_print 函数替换为可工作版本
+- 了解 QEMU 的工作机制
+-----
 2019-06-02:
 - build / package 文件夹的区别？一个有 aarch64/linker.ld，一个直接是 linker.ld
   - 应该是因为 -bf 是构建文件夹， -pf (package folder) 是 cmake install 到的文件夹
