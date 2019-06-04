@@ -1,5 +1,29 @@
 # 开发日志
 
+2019-06-04:
+- Figured out how dtb works
+- After qemu singlestepping & [u-boot code](https://github.com/u-boot/u-boot/blob/master/board/raspberrypi/rpi/lowlevel_init.S) I found dtb addr stored in x0 at boot time
+  - `qemu-system-aarch64 -M raspi3 -S -gdb tcp::2333 -kernel test.img.14 -d in_asm -dtb ../../../ArchLinuxARM/boot/dtbs/broadcom/bcm2837-rpi-3-b-plus.dtb`
+  - Now debugging messages look like below:
+```
+ZT debugging
+Magic 3f000000 addrin 8
+CurrentEL 00000002
+size_cells : 
+addr_cells : 
+mem_offset : 
+RAM BASE : 
+RAM SIZE : 
+[aarch64 PC] constructor 
+[ Machine ] Initializing heap
+[ Machine ] Main memory detected as 1005092672 b
+[ Machine ] Reserving 1048576 b for machine use 
+* Elf start: 0x7ff18
+/home/libreliu/OS/IncludeOS-dev-new/modified_src_editable/src/../api/util/elf_binary.hpp:56:Elf_binary Expects failed: is_ELF() 
+SYN EXCEPTION 97800010
+```
+  - Note that cell codes are still having problems, maybe we need to feed qemu with overlayed dtbs, instead of only root ones
+-----
 2019-06-03:
 - 学习了 AArch64 Exception，分析了 exception.asm
 - 定位并修复了访问栈时产生异常的问题
