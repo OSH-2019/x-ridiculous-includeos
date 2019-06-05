@@ -1,5 +1,49 @@
 # 开发日志
 
+2019-06-05:
+- Skip the `__libc_start_main` executing `kernel_main` instead.
+- `global_ctors_ok == 42` check failed and temply skip.
+  ```
+  //LL_ASSERT(global_ctors_ok == 42);
+  SYN EXCEPTION 02000000
+  ```
+- `kernel_sanity_checks` check failed and temply skip.
+  ```
+  Global constuctors not working (or modified during run time).
+  SYN EXCEPTION 97800010
+  ```
+- Replace `cout` in `main.cpp` with `printf` and finally print `Hello world` on the screen.
+  ```
+  ZT debugging
+  Magic 3f000000 addrin 8
+  CurrentEL 00000002
+  size_cells : 00000001
+  addr_cells : 00000001
+  mem_offset : 00000090
+  RAM BASE : 0000000000000000
+  RAM SIZE : 000000003C000000
+  [aarch64 PC] constructor 
+  [ Machine ] Initializing heap
+  [ Machine ] Main memory detected as 1005104960 b
+  [ Machine ] Reserving 1048576 b for machine use 
+  * Initializing aux-vector @ 0x7fd28
+  * Stack protector value: 0
+  * Starting libc initialization
+  <kernel_main> libc initialization complete 
+  <kernel_main> OS start 
+  <kernel_main> sanity checks 
+  <kernel_main> post start 
+  ================================================================================
+                                                                                IncludeOS 0.14.2-1211 (aarch64 / 64-bit)
+                                         +--> Running [ Hello world - OS included ]
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    +--> WARNING: No good random source found: RDRAND/RDSEED instructions not available.
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Hello world
+                          [ main ] returned with status 0
+                                                         <kernel_main> os_event_loop
+  ```
+  
 2019-06-04:
 - Figured out how dtb works
 - After qemu singlestepping & [u-boot code](https://github.com/u-boot/u-boot/blob/master/board/raspberrypi/rpi/lowlevel_init.S) I found dtb addr stored in x0 at boot time
@@ -41,7 +85,7 @@ RAM SIZE :
 * Starting libc initialization
 ```
   - Note that cell codes are still having problems, maybe we need to feed qemu with overlayed dtbs, instead of only root ones
-  - Seems like the libc could not work.
+  - Seem like the libc could not work.
 -----
 2019-06-03:
 - 学习了 AArch64 Exception，分析了 exception.asm
