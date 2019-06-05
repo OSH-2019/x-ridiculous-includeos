@@ -22,7 +22,26 @@ RAM SIZE :
 /home/libreliu/OS/IncludeOS-dev-new/modified_src_editable/src/../api/util/elf_binary.hpp:56:Elf_binary Expects failed: is_ELF() 
 SYN EXCEPTION 97800010
 ```
+
+```
+ZT debugging
+Magic 3f000000 addrin 8
+CurrentEL 00000002
+size_cells : 
+addr_cells : 
+mem_offset : 
+RAM BASE : 
+RAM SIZE : 
+[aarch64 PC] constructor 
+[ Machine ] Initializing heap
+[ Machine ] Main memory detected as 1005092672 b
+[ Machine ] Reserving 1048576 b for machine use 
+* Initializing aux-vector @ 0x7fd38
+* Stack protector value: 0
+* Starting libc initialization
+```
   - Note that cell codes are still having problems, maybe we need to feed qemu with overlayed dtbs, instead of only root ones
+  - Seems like the libc could not work.
 -----
 2019-06-03:
 - 学习了 AArch64 Exception，分析了 exception.asm
