@@ -1,5 +1,8 @@
 # 开发日志
 
+2019-06-06:
+- Starting the GPIO module but still have bugs.
+
 2019-06-05:
 - Skip the `__libc_start_main` executing `kernel_main` instead.
 - `global_ctors_ok == 42` check failed and temply skip.
