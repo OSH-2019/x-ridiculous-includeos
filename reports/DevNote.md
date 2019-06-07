@@ -1,5 +1,8 @@
 # 开发日志
 
+2019-06-07:
+- Fix the bugs in GPIO module and need to add the GPIO driver into includeOS.
+
 2019-06-06:
 - Starting the GPIO module but still have bugs.
 
