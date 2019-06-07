@@ -76,7 +76,7 @@ clock lines along with another copy of the ARM JTAG signals.
 
 void gpio_func_select(const __uint8_t pin, __uint8_t mode)
 {
-    volatile __uint32_t *paddr = GPIO_BASE + GPFSEL0 / 4 + (pin / 10);
+    volatile __uint32_t *paddr = GPFSEL0 + (pin / 10) * 4;
     __uint8_t shift = (pin % 10) * 3;
     __uint32_t mask = GPIO_FSEL_MASK << shift;
     __uint32_t value = mode << shift;
@@ -85,21 +85,21 @@ void gpio_func_select(const __uint8_t pin, __uint8_t mode)
 
 void gpio_set(const __uint8_t pin)
 {
-    volatile __uint32_t *paddr = GPIO_BASE + GPSET0 / 4 + pin / 32;
+    volatile __uint32_t *paddr = GPSET0 + pin / 32;
     __uint8_t shift = (pin % 32);
     write_peri(paddr, 1 << shift);
 }
 
 void gpio_clr(const __uint8_t pin)
 {
-    volatile __uint32_t *paddr = GPIO_BASE + GPCLR0 / 4 + pin / 32;
+    volatile __uint32_t *paddr = GPCLR0 + pin / 32;
     __uint8_t shift = pin % 32;
     write_peri(paddr, 1 << shift);
 }
 
 int gpio_read_level(const __uint8_t pin)
 {
-    volatile __uint32_t *paddr = GPIO_BASE + GPLEV0 / 4 + pin / 32;
+    volatile __uint32_t *paddr = GPLEV0 + pin / 32;
     __uint8_t shift = pin % 32;
     __uint32_t value = read_peri(paddr);
     return (value & (1 << shift)) ? HIGH : LOW;

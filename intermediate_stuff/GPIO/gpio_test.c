@@ -1,13 +1,13 @@
 #include "GPIO.h"
 
-int main()
+int gpio_test_main()
 {
     volatile __uint8_t led = 29;
-    volatile __uint32_t *timer_addr = 0x3F003000;
-
+    volatile __uint32_t *timer_addr = 0x3F003004;
     gpio_func_select(led, GPIO_FSEL_OUTP);
     int i;
     __uint32_t prev_time = read_peri(timer_addr);
+    // blink 200 times.
     for (i = 0; i < 200; i++)
     {
         gpio_set(led);
