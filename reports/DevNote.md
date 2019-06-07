@@ -2,6 +2,7 @@
 
 2019-06-07:
 - Fix the bugs in GPIO module and need to add the GPIO driver into includeOS.
+- (LZT: Examine the ELF header and auxiliary vectors. 咕咕ed others and apologized for his behaviour.)
 
 2019-06-06:
 - Starting the GPIO module but still have bugs.
