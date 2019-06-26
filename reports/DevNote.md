@@ -1,5 +1,12 @@
 # 开发日志
 
+2019-06-26:
+- 开始搞 sdcard 的移植（yjh & tyl）
+- 正在试图搞懂 tls 的相关逻辑；考虑 ELF 直接加载的可行方案
+  - U-Boot 不行，kernel image 的格式也不是 ELF
+  - 应该要手写... Multiboot binary bootloader
+  - 《程序员的自我修养-链接、装载与库》比较好用
+
 2019-06-07:
 - Fix the bugs in GPIO module and need to add the GPIO driver into includeOS.
 - (LZT: Examine the ELF header and auxiliary vectors. 咕咕ed others and apologized for his behaviour.)
