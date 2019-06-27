@@ -1,5 +1,9 @@
 # 开发日志
 
+2019-06-27:
+- 写了一点点 ELF Parser 的东西
+- ~~Civ5 和 Fate of the Dragon 真好玩~~
+
 2019-06-26:
 - 开始搞 sdcard 的移植（yjh & tyl）
 - 正在试图搞懂 tls 的相关逻辑；考虑 ELF 直接加载的可行方案
