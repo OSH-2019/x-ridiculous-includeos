@@ -150,6 +150,9 @@ int parser_init(const char *filename) {
     }
 }
 
+int multiboot_search();
+int multiboot_parse();
+
 int main(int argc, char *argv[]) {
     printf("Simple ELF Parser\n");
     if (argc != 2) {
@@ -157,4 +160,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     parser_init(argv[1]);
+    if (!multiboot_search()) {
+        multiboot_parse();
+    }
 } 
