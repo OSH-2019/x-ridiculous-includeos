@@ -1,5 +1,10 @@
 # 开发日志
 
+2019-07-02:
+- 还是没有成功启动😂
+- 明天需要整合 USB
+- SD 和 file system 需要整合  
+
 2019-06-27:
 - 写了一点点 ELF Parser 的东西
 - ~~Civ5 和 Fate of the Dragon 真好玩~~
