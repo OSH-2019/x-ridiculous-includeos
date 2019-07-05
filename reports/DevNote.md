@@ -1,5 +1,9 @@
 # 开发日志
 
+2019-07-05:
+- The whole musl things work fine, given `-s build_type=Debug` set while doing `conan create . musl/1.1.18@includeos/stable -pr gcc-8.2.0-linux-aarch64 -s build_type=Debug`
+  - But why????
+
 2019-07-02:
 - 还是没有成功启动😂
 - 明天需要整合 USB
