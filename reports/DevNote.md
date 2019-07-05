@@ -2,6 +2,8 @@
 
 2019-07-05:
 - 增加了对屏幕的支持，需要时可以在屏幕上打印（日志之类的）了。
+- The whole musl things work fine, given `-s build_type=Debug` set while doing `conan create . musl/1.1.18@includeos/stable -pr gcc-8.2.0-linux-aarch64 -s build_type=Debug`
+  - But why????
 
 2019-07-02:
 - 还是没有成功启动😂
