@@ -60,7 +60,7 @@ int main(void) {
         *p = 0;
     }
 
-    mem_rand();
+    //mem_rand();
     uart_init();
 
     printf("ELF Multiboot Bootloader\n");

@@ -53,7 +53,8 @@ multiboot_hdr *hdr;
 
 // Search for multiboot header
 int multiboot_search(char *file_base) {
-    for (int i = 0; i < 8192; i++) {
+    // Search 800KB, to deal with increasing IncludeOS binary size
+    for (int i = 0; i < 819200; i++) {
         // magics are little-endian
         // Make sure we have aligned access
         hdr = (multiboot_hdr *)(((uint32_t *) (file_base)) + i);
