@@ -4,6 +4,8 @@ An attempt to port IncludeOS to ARM RPi 3B+.
 
 [View code repo here.](https://github.com/libreliu/IncludeOS)
 
+[View building process here.](reports/building_docs/DevNote.md)
+
 ## Team Members
 
 刘紫檀 [(Zitan Liu)](https://github.com/libreliu)
@@ -20,7 +22,7 @@ An attempt to port IncludeOS to ARM RPi 3B+.
 
 [可行性报告](reports/feasibility.md) ([PDF](reports/feasibility.pdf))
 
-[结题答辩 PDF](reports\Ridiculous-includeOS-Final.pdf)
+[结题答辩 PDF](reports/Ridiculous-includeOS-Final.pdf)
 
 ## Timeline
 
