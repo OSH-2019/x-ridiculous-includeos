@@ -22,7 +22,9 @@ An attempt to port IncludeOS to ARM RPi 3B+.
 
 [可行性报告](reports/feasibility.md) ([PDF](reports/feasibility.pdf))
 
-[结题答辩 PDF](reports/Ridiculous-includeOS-Final.pdf)
+[中期报告](reports/Ridiculous-includeOS-Final.pdf)
+
+[结题报告](reports/concluding.md) ([答辩 PDF](reports/Ridiculous-includeOS-Final.pdf))
 
 ## Timeline
 
