@@ -131,15 +131,16 @@ Channel 8 的消息格式如下：
 ```text
        0       4       8      12      16      20      24      28      32
        +---------------------------------------------------------------+
-0x00   |                         Buffer Size(消息缓冲区长度)                           |
+0x00   |                         Buffer Size(消息缓冲区长度)            |
        +---------------------------------------------------------------+
-0x04   |                   Request(0)/Response(0x80000000 for success, 0x80000001 for an error) Code                       |
+0x04   | Request(0)/Response                                           |
+       |	(0x80000000 for success, 0x80000001 for an error) Code |
        +---------------------------------------------------------------+
-0x08   |                             Tags(具体命令)                              |
+0x08   |                             Tags(具体命令)                     |
 ...    \\                                                             \\
 0xXX   |                             Tags                              |
        +---------------------------------------------------------------+
-0xXX+4 |                           End Tag (0，表示消息结束)                         |
+0xXX+4 |                           End Tag (0，表示消息结束)            |
        +---------------------------------------------------------------+
 0xXX+8 |                           Padding                             |
 ...    \\                                                             \\
@@ -256,4 +257,4 @@ API 封装在 `hw` 目录下。
 1. [Alfred Bratterud, Alf-Andre Walla, Harek Haugerud, Paal E. Engelstad, Kyrre Begnum,"IncludeOS: A minimal, resource efficient
 unikernel for cloud services"](https://github.com/includeos/IncludeOS/blob/master/doc/papers/IncludeOS_IEEE_CloudCom2015_PREPRINT.pdf)
 
-2. [Rasberry pi Mailbox prop-channel](https://jsandler18.github.io/extra/prop-channel.html)
+2. [Rasberry pi Mailbox prop-channel.](https://jsandler18.github.io/extra/prop-channel.html)
