@@ -237,7 +237,36 @@ API 封装在 `hw` 目录下。
 
 
 #### File system
+File system 主要分为两个部分：一个是实文件系统，这里用的是 FAT；一个是虚文件系统。
 
+###### FAT
+
+有三个重要的基类：分别为 Block_Device 类， File_system 类，Disk类。
+
+其中， Block_Device 类为所有可读硬件类的抽象基类，提供基本的借口。 Block_Device 类将构造函数设为私有，并设有计数器，用以计数有多少 Block_Device 类被实例化。当需要实例化一个继承自 Block_Device 类的实类时，一般会自己再构造一个 get() 函数。比如在 memdisk 类中
+
+```c++
+static Memdisk& get() noexcept {
+    static Memdisk memdisk;
+    return memdisk;
+}
+```
+
+用这种方法，可以很好地保证类的实列为单例，这符合实际应用需求。
+
+File_system 类为所有文件系统类的抽象基类，在这里，FAT 类就继承自 File_system 类。File_system 有一个内部成员为 Block_Device 类的指针，并且在实例化一个 File_system 类时，必须传入一个继承自 Block_Device 类的实例。
+
+Disk 类是对 File_system 类和 Block_Device 类的进一步抽象。Disk 类在实例化时，传入一个 Block_Device 类的实例，再通过 init_fs() 函数进行文件系统的初始化。但 Disk 类本身不提供读写接口，这么做是为了下面的 VFS。
+
+##### VFS
+
+VFS 是一个类，他的节点是 VFS_entry 类。用的数据结构为最一般的树形结构。
+
+VFS_entry 通过成员`void *obj_`保证了任何数据类型都可以成为 VFS 的内部可挂载对象。
+
+VFS 主要负责维护文件路径，以及上述 Disk 的挂载。当挂载好东西后，就可以通过绝对路径或相对路径访问一个文件并对其进行读写。VFS 同时还支持直接返回一个描述文件夹的类 Dirent 方便进行迭代，也支持直接返回一个文件描述符 fd。
+
+fd 在这里被实现为一个类，但这个类对外隐藏，外部通过被实现为 int 的文件描述符进行工作，这一点设计的和 Linux 类似。fd 通过 fd_compatible 类进行管理。fd_compatible 本质上就是一个 `std:map`。
 
 
 ## 未来展望
@@ -247,6 +276,8 @@ API 封装在 `hw` 目录下。
 - 希望能够成功添加 USB 驱动，因为 USB 驱动是 Ethernet 驱动的基础和前提；
 
 - 希望能够提供 Ethernet 支持；
+
+- 希望能够完善 FAT 文件系统中的 FAT 表维护，并提供写支持。
 
 - 希望能够完成 includeOS 和传统操作系统网络性能对比。
 
