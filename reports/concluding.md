@@ -44,6 +44,14 @@ includeOS 等 Unikernel 使用更加复杂的构建系统来分析用户代码�
 
 ## 工作摘要
 
+### Intro
+
+Raspberry Pi 3b+ 使用的 `BCM2837` Soc，是 4 x Cortex-A53 @ 1.4GHz 的 AArch64 体系结构的处理器，移植 IncludeOS 需要将所有平台相关代码改为 AArch64 下的代码。
+
+目前已完成的 AArch64 相关的移植包括 **MMU**，**Exception Handler**，待完成的有 **Interrupt Handler**，**SMP**.
+
+已完成的 Raspberry 相关的移植包括 **Frame Buffer（显示器）**，**eMMC (SD Card)**，**GPIO**，待完成的有 **USB**，**Ethernet**.
+
 ### includeOS 源代码结构
 
 includeOS Source Architecture
@@ -577,14 +585,464 @@ API 封装在 `hw` 目录下。
 
 #### eMMC & SD Card
 
+Raspberry Pi 3b+ 
+
+Raspberry Pi 3b+ 使用 MMIO 和 Interrupt 完成对 eMMC 设备的控制，所用到的 MMIO 地址如下（具体参考 Broadcom 的文档 [BCM2835-ARM-Peripherals.pdf](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)）：
+
+```c
+#define EMMC_ARG2 ((volatile unsigned int *)(MMIO_BASE + 0x00300000))
+#define EMMC_BLKSIZECNT ((volatile unsigned int *)(MMIO_BASE + 0x00300004))  // block size
+#define EMMC_ARG1 ((volatile unsigned int *)(MMIO_BASE + 0x00300008))  // cmd arg
+#define EMMC_CMDTM ((volatile unsigned int *)(MMIO_BASE + 0x0030000C))  // cmd
+#define EMMC_RESP0 ((volatile unsigned int *)(MMIO_BASE + 0x00300010))
+#define EMMC_RESP1 ((volatile unsigned int *)(MMIO_BASE + 0x00300014))
+#define EMMC_RESP2 ((volatile unsigned int *)(MMIO_BASE + 0x00300018))
+#define EMMC_RESP3 ((volatile unsigned int *)(MMIO_BASE + 0x0030001C))
+#define EMMC_DATA ((volatile unsigned int *)(MMIO_BASE + 0x00300020))
+#define EMMC_STATUS ((volatile unsigned int *)(MMIO_BASE + 0x00300024))  // status
+#define EMMC_CONTROL0 ((volatile unsigned int *)(MMIO_BASE + 0x00300028))
+#define EMMC_CONTROL1 ((volatile unsigned int *)(MMIO_BASE + 0x0030002C))
+#define EMMC_INTERRUPT ((volatile unsigned int *)(MMIO_BASE + 0x00300030))  // interrupt
+#define EMMC_INT_MASK ((volatile unsigned int *)(MMIO_BASE + 0x00300034))  // interrupt enable
+#define EMMC_INT_EN ((volatile unsigned int *)(MMIO_BASE + 0x00300038))  // interrupt mask
+#define EMMC_CONTROL2 ((volatile unsigned int *)(MMIO_BASE + 0x0030003C))
+#define EMMC_SLOTISR_VER ((volatile unsigned int *)(MMIO_BASE + 0x003000FC))
+```
+
+EMMC 模块给外部操作提供的接口有：
+
+```c
+/**
+ * init sd card
+ */
+int sd_init();
+
+/**
+ * read blocks
+ * lba  起始 block address
+ * num  读取的 block 数
+ */
+int sd_readblock(unsigned int lba, unsigned char *buffer, unsigned int num);
+
+/**
+ * write block
+ * lba  起始 block address
+ * num  写入的 block 数
+ */
+int sd_writeblock(unsigned char *buffer, unsigned int lba, unsigned int num);
+```
+
+内部实现的所有函数有：
+
+```c
+/**
+ * Wait for data or command ready
+ */
+int sd_status(unsigned int mask);
+
+/**
+ * Wait for interrupt
+ */
+int sd_int(unsigned int mask);
+
+/**
+ * Send a command
+ */
+int sd_cmd(unsigned int code, unsigned int arg);
+
+/**
+ * read a block from sd card and return the number of bytes read
+ * returns 0 on error.
+ */
+int sd_readblock(unsigned int lba, unsigned char *buffer, unsigned int num);
+
+/**
+ * write a block to the sd card and return the number of bytes written
+ * returns 0 on error.
+ */
+int sd_writeblock(unsigned char *buffer, unsigned int lba, unsigned int num);
+
+/**
+ * set SD clock to frequency in Hz
+ */
+int sd_clk(unsigned int f);
+
+/**
+ * initialize EMMC to read SDHC card
+ */
+int sd_init();
+```
+
+每一个对 SD Card 的操作都可以分为如下几步：
+
+1. 等待 SD 到指定状态（data or command ready），通过 `sd_status` 函数完成。
+
+2. 发送指定的命令，通过 `sd_cmd` 完成。此时通过 `EMMC_CMDTM` 和 `EMMC_ARG1` 两个 MMIO 地址完成命令和参数的传递。
+
+3. 等待命令完成（`sd_cmd` 函数，通过检测 `EMMC_INTERRUPT`）。可以通过中断方式处理，也可以通过轮询 `EMMC_INTERRUPT` 这个 MMIO 地址的数据。受限于中断系统的进度，暂用轮询的方式处理。
+
+4. 读取返回的数据
+
+`sd_readblock` 和 `sd_writeblock` 都是上述步骤完成的功能。
+
+常用的几个操作命令代码如下（具体参考 Broadcom 的文档 [BCM2835-ARM-Peripherals.pdf](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)）：
+
+```c
+// COMMANDs
+#define CMD_GO_IDLE 0x00000000
+#define CMD_ALL_SEND_CID 0x02010000
+#define CMD_SEND_REL_ADDR 0x03020000
+#define CMD_CARD_SELECT 0x07030000
+#define CMD_SEND_IF_COND 0x08020000
+#define CMD_STOP_TRANS 0x0C030000
+#define CMD_READ_SINGLE 0x11220010
+#define CMD_READ_MULTI 0x12220032
+#define CMD_SET_BLOCKCNT 0x17020000
+#define CMD_WRITE_SINGLE 0x18220010
+#define CMD_WRITE_MULTI 0x19220032
+#define CMD_APP_CMD 0x37000000
+#define CMD_SET_BUS_WIDTH 0x06020000
+#define CMD_SEND_OP_COND 0x06020000
+#define CMD_SEND_SCR 0x33220010
+```
+
+此处略去上述所有函数的具体实现，具体可参考实现代码。
+
+IncludeOS 中 SD Card 抽象为 `Writable Block Device`, 并有一个抽象类 `Writable_Block_device` 对应，继承实现这个抽象类，IncludeOS 就有了通过通用接口 `open`, `read`, `write` 操作 SD Card 的能力（具体需要用到 VFS, 见后续内容）。
+
+```c++
+#include <hw/writable_blkdev.hpp>
+
+namespace hw
+{
+    class Rpi_Emmc : public Writable_Block_device
+    {
+    public:
+        ~Rpi_Emmc();
+
+        std::string device_name() const override;
+
+        const char *driver_name() const noexcept;
+
+        block_t size() const noexcept;
+
+        block_t block_size() const noexcept;
+
+        void read(block_t blk, on_read_func reader);
+
+        void read(block_t blk, size_t count, on_read_func reader);
+
+        buffer_t read_sync(block_t blk, size_t count = 1);
+
+        void write(block_t blk, buffer_t, on_write_func);
+
+        bool write_sync(block_t blk, buffer_t);
+
+        void deactivate() override;
+
+    protected:
+        Rpi_Emmc() noexcept;
+
+    private:
+        int id_;
+    }
+}
+```
+
 
 
 #### MMU
 
+AArch64 体系结构的 MMU 由如下几个 System Register 控制（具体参考 [AArch64 Reference](https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile)）：
+
+- `TCR`: Translation Control Register, 控制页表转换过程的一些属性，如 cacheability, shareability.
+
+- `MAIR`: Memory Attribute Indirection Registers, 设置页表项中不同 AttrIndx 值得具体语义（见页表项的具体划分）。
+
+- `SCTLR`: System Control Register, 控制页表、缓存等的启用与否。
+
+- `TTBR0/1`: Translation Table Base Register, 保存页表的起始地址（`TTBR0` 为 user space, `TTBR1` 为 kernel space）。
+
+一般的操作系统会使用 `kernel space` 和 `user space` 两个不同的地址空间以隔离内核程序和数据，保证安全性。AArch64 也提供了相应的支持：`TTBR0` 保存 user space 的页表，`TTBR1` 保存 kernel space 的页表。
+
+AArch64 的页表可以配置为 2, 3, 4 级，页大小也可以配置为 4KB, 16KB, 64KB. 为方便起见，此处仅讨论 3 级 4KB 页大小的页表配置（这也是 Linux on AArch64 的常用配置）。这种配置下，地址空间划分如下：
+
+![two spaces](pics/two_spaces.jpg)
+
+| Start              | End                | Size           | Use    |
+|--------------------|--------------------|----------------|--------|
+| 0x0000000000000000 | 0x0000007fffffffff | 512GB (39-bit) | user   |
+| 0xffffff8000000000 | 0xffffffffffffffff | 512GB (39-bit) | kernel |
+
+在 IncludeOS 中，由于不区分系统程序和用户程序，整个项目是**单地址空间**的（我们选择 user space）。单地址空间可以减小页表的维护开销，对于降低响应时间有一定帮助。
+
+我们仅需配置 `TTBR0` 即可。
+
+![one space](pics/one_space.png)
+
+对于页大小为 4KB 的三级页表，一个逻辑地址的组成如下：
+
+![VA entry](pics/VA_entry.png)
+
+页表的翻译过程如下：
+
+![MMU translation](pics/mmu_trans.png)
+
+上图中的 `a` 就是逻辑地址中的 L1 ~ L3 索引，`Block` 代表地址翻译没有到 3 级就结束，`Table` 代表继续查找下一级页表翻译，最后找到 `Page`, 找到物理地址。
+
+页表项的组成如下：
+
+![entry](pics/page_entry.png)
+
+本项目中配置了一个覆盖 1G 逻辑地址空间(`0x00000000` ~ `0x3FFFFFFF`) 的 3 级页表，为方便起见，把覆盖的逻辑地址变换为相同的物理地址。
+
+![page structure](pics/page_struct.png)
+
+页表项有一些属性设置，如下：
+
+```c
+// granularity
+#define PT_PAGE 0b11  // 4k granule
+#define PT_BLOCK 0b01 // 2M granule
+// accessibility
+#define PT_KERNEL (0 << 6) // privileged, supervisor EL1 access only
+#define PT_USER (1 << 6)   // unprivileged, EL0 access allowed
+#define PT_RW (0 << 7)     // read-write
+#define PT_RO (1 << 7)     // read-only
+#define PT_AF (1 << 10)    // accessed flag
+#define PT_NX (1UL << 54)  // no execute
+// shareability
+#define PT_OSH (2 << 8) // outter shareable
+#define PT_ISH (3 << 8) // inner shareable
+// defined in MAIR register
+#define PT_MEM (0 << 2) // normal memory
+#define PT_DEV (1 << 2) // device MMIO
+#define PT_NC (2 << 2)  // non-cachable
+```
+
+各级页表的配置代码如下：
+
+##### L1
+
+```c
+page_base[0 * page_entries + 0] = (page_addr + 1 * PAGESIZE) | // L2 physical address
+                                    PT_PAGE |                  // set as table desc
+                                    PT_AF |                    // accessed flag
+                                    PT_USER |                  // non-privileged
+                                    PT_ISH |                   // inner shareable
+                                    PT_MEM;                    // normal memory
+```
+
+##### L2
+
+```c
+// 512 个 L2 条目
+for (uint64_t i = 0; i < page_entries; i++)
+{
+    page_base[1 * page_entries + i] = (page_addr + (2 + i) * PAGESIZE) | // L3 physical address
+                                        PT_PAGE |                        // set as table desc
+                                        PT_AF |                          // accessed flag
+                                        PT_USER |                        // non-privileged
+                                        PT_ISH |                         // inner shareable
+                                        PT_MEM;                          // normal memory
+```
+
+##### L3
+
+```c
+// 每个 L2 对应 512 个 L3
+for (uint64_t j = 0; j < page_entries; j++)
+{
+    uint64_t page_index = i * page_entries + j;
+    uint64_t entry = (page_index * PAGESIZE) | // physical address
+                        PT_PAGE |              // set as page desc
+                        PT_AF |                // accessed flag
+                        PT_USER;               // non-privileged
+    // 可执行部分设置为 read-only
+    if ((page_index >= text_start_page) && (page_index < exec_end_page))
+    {
+        entry |= (PT_RO | PT_ISH | PT_MEM);
+    }
+    // ro-data 部分设置为 read-only, no-execute
+    else if ((page_index >= ro_start_page) && (page_index < ro_end_page))
+    {
+        entry |= (PT_RO | PT_NX | PT_ISH | PT_MEM);
+    }
+    // mmio 部分必须设置为为 outter shared, 以保证 CPU 和外设读取数据的一致性
+    else if (page_index >= mmio_start_page)
+    {
+        entry |= (PT_NX | PT_RW | PT_OSH | PT_DEV);
+    }
+    // 其他 read-write, no-execute
+    else
+    {
+        entry |= (PT_NX | PT_RW | PT_ISH | PT_MEM);
+    }
+    page_base[2 * page_entries + page_index] = entry;
+}
+```
+
+可以看到整个地址空间被划分成了四部分：
+
+- `text` 部分，是可执行的机器码，为防止被恶意修改，应该设置为 `read-only`, 对于静态编译的 IncludeOS, 这部分一经设定后就不会再更改，有效防止设备遭受恶意攻击导致的程序遭到恶意修改。
+
+- `ro-data` 部分，设置为 `read-only`
+
+- `MMIO` 部分，设置为 `outter shared`, 以保证 CPU 对 MMIO 数据的修改都能及时被外设读取到（`outter shared` 部分不使用 cache）
+
+- 除 `text` 以外的部分都设置成 `no-execute`, 防止程序执行了意想不到的代码
+
+由于 Raspberry Pi 3b+ 有 1GB 的内存，对于一般 IoT 任务都绰绰有余，因此暂时没有处理 `Page Fault`, 页换入换出等功能，也没有实现虚拟内存。
+
+经过以上配置，IncludeOS 具有一个 AArch64 Raspberry Pi 3b+ 下的静态页表。
 
 
-#### Expection handler
+#### Exception
 
+AArch64 中的 Exception 可以分为以下部分：
+
+- Interrupt
+  - IRQ （普通中断）
+  - FIQ （快速中断，更高的处理优先级，Linux 中未涉及）
+  - Serror (System Error)
+- Aborts
+  - synchronous：Instruction/Data Abort，Page Fault
+  - asynchronous：外部硬件故障
+- Reset
+- System Call
+  - Supervisor Call (SVC) ：User Program 向 Kernel 申请服务
+  - Hypervisor Call (HVC) ：Guest OS 向 Hypervisor 申请服务
+  - Secure monitor Call (SMC) ：切换进入 Secure Mode
+
+Exception 控制系统用到如下的 System Register:
+
+- VBAR (Vector Base Address Register) ：异常向量表基地址
+
+- ESR (Exception Syndrome Register) ：记录异常类型、原因
+
+- ELR (Exception Linker Register) ：发生异常的 PC
+
+- SPSR (Saved Program Status Register) ：发生异常时的 Program Status Register
+
+- FAR (Fault Address Register) ：记录产生 Data Abort 异常的访存地址
+
+发生异常后，CPU 会记录 `ESR`, `ELR`, `SPSR`, `FAR` 等，并在 `VBAR` 处查找异常处理向量表，并根据异常类型跳转到 VBAR 的特定偏移位置处理异常。
+
+异常处理向量表结构如下：
+
+![VBAR](pics/vbar.jpg)
+
+实现的 ARM 汇编码如下：
+
+```arm
+.align 11
+_vectors:
+
+// synchronous
+.align 7
+mov x0, #0
+mrs x1, esr_el1
+mrs x2, elr_el1
+mrs x3, spsr_el1
+mrs x4, far_el1
+b exc_handler
+
+// IRQ
+.align 7
+mov x0, #1
+mrs x1, esr_el1
+mrs x2, elr_el1
+mrs x3, spsr_el1
+mrs x4, far_el1
+b exc_handler
+
+// FIQ
+.align 7
+mov x0, #2
+mrs x1, esr_el1
+mrs x2, elr_el1
+mrs x3, spsr_el1
+mrs x4, far_el1
+b exc_handler
+
+// SError
+.align 7
+mov x0, #3
+mrs x1, esr_el1
+mrs x2, elr_el1
+mrs x3, spsr_el1
+mrs x4, far_el1
+b exc_handler
+```
+
+为了便于调试，我们针对部分同步异常做了异常处理（输出异常信息），异常处理函数如下：
+
+```c
+void exc_handler(unsigned long type, unsigned long esr, unsigned long elr, unsigned long spsr, unsigned long far)
+{
+    // print out interruption type
+    switch(type) {
+        case 0: uart_puts("Synchronous"); break;
+        case 1: uart_puts("IRQ"); break;
+        case 2: uart_puts("FIQ"); break;
+        case 3: uart_puts("SError"); break;
+    }
+    uart_puts(": ");
+    // decode exception type
+    switch(esr>>26) {
+        case 0b000000: uart_puts("Unknown"); break;
+        case 0b000001: uart_puts("Trapped WFI/WFE"); break;
+        case 0b001110: uart_puts("Illegal execution"); break;
+        case 0b010101: uart_puts("System call"); break;
+        case 0b100000: uart_puts("Instruction abort, lower EL"); break;
+        case 0b100001: uart_puts("Instruction abort, same EL"); break;
+        case 0b100010: uart_puts("Instruction alignment fault"); break;
+        case 0b100100: uart_puts("Data abort, lower EL"); break;
+        case 0b100101: uart_puts("Data abort, same EL"); break;
+        case 0b100110: uart_puts("Stack alignment fault"); break;
+        case 0b101100: uart_puts("Floating point"); break;
+        default: uart_puts("Unknown"); break;
+    }
+    // decode data abort cause
+    if(esr>>26==0b100100 || esr>>26==0b100101) {
+        uart_puts(", ");
+        switch((esr>>2)&0x3) {
+            case 0: uart_puts("Address size fault"); break;
+            case 1: uart_puts("Translation fault"); break;
+            case 2: uart_puts("Access flag fault"); break;
+            case 3: uart_puts("Permission fault"); break;
+        }
+        switch(esr&0x3) {
+            case 0: uart_puts(" at level 0"); break;
+            case 1: uart_puts(" at level 1"); break;
+            case 2: uart_puts(" at level 2"); break;
+            case 3: uart_puts(" at level 3"); break;
+        }
+    }
+    // dump registers
+    uart_puts(":\n  ESR_EL1 ");
+    uart_hex(esr>>32);
+    uart_hex(esr);
+    uart_puts(" ELR_EL1 ");
+    uart_hex(elr>>32);
+    uart_hex(elr);
+    uart_puts("\n SPSR_EL1 ");
+    uart_hex(spsr>>32);
+    uart_hex(spsr);
+    uart_puts(" FAR_EL1 ");
+    uart_hex(far>>32);
+    uart_hex(far);
+    uart_puts("\n");
+    // no return
+    while(1);
+}
+```
+
+以此便可以快速定位开发过程中出现的问题类型。
+
+#### USB
+
+Raspberry Pi 3b+ 的网卡挂载在 USB 2.0 总线上，因此完成 USB 系统的适配才能有网络连接。由于 USB 系统比较复杂，此项工作仍处于起步阶段，目前主要以参考 Raspberry Pi 3b+ bare metal 代码为主。
 
 
 #### File system
