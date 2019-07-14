@@ -239,7 +239,7 @@ API 封装在 `hw` 目录下。
 #### File system
 File system 主要分为两个部分：一个是实文件系统，这里用的是 FAT；一个是虚文件系统。
 
-###### FAT
+##### FAT
 
 有三个重要的基类：分别为 Block_Device 类， File_system 类，Disk类。
 
