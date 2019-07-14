@@ -55,10 +55,10 @@ Raspberry Pi 3b+ 使用的 `BCM2837` Soc，是 4 x Cortex-A53 @ 1.4GHz 的 AArch
 ### includeOS 源代码结构
 
 includeOS Source Architecture
-![includeOS Source Architecture](pics/includeOS Source Architecture.png)
+![includeOS Source Architecture](pics/includeOS_Source_Architecture.png)
 
 includeOS Runtime Architecture
-![includeOS Runtime Architecture](pics/includeOS Runtime Architecture.png)
+![includeOS Runtime Architecture](pics/includeOS_Runtime_Architecture.png)
 
 
 
