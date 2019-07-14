@@ -47,12 +47,176 @@ includeOS 等 Unikernel 使用更加复杂的构建系统来分析用户代码�
 ### includeOS 源代码结构
 
 includeOS Source Architecture
-![includeOS Source Architecture](pics/includeOS&#32;Source&#32;Architecture.png)
+![includeOS Source Architecture](pics/includeOS Source Architecture.png)
 
 includeOS Runtime Architecture
-![includeOS Runtime Architecture](pics/includeOS&#32;Runtime&#32;Architecture.png)
+![includeOS Runtime Architecture](pics/includeOS Runtime Architecture.png)
+
+
+
+### 现在可以运行的代码一览
+
+ELF Multiboot Bootloader for AArch64 (elf-boot): https://github.com/OSH-2019/x-ridiculous-includeos/tree/master/elf-boot
+
+IncludeOS Library Code: https://github.com/libreliu/includeos
+
+IncludeOS User Code: https://github.com/libreliu/hello_world
+
+### 运行结果
+
+```
+[includeos@thinkpad-ssd elf-boot]$ make run
+qemu-system-aarch64 -M raspi3 -kernel kernel8.img -serial stdio -drive file=sd.img,format=raw,if=sd
+ELF Multiboot Bootloader
+DTB Start=837a8, End=882d5, Size=4b2d
+Binary Start=882d8, End=e89c40, Size=e01968
+Detected Multiboot header at a18e8, magic = 1badb002, flags = 10003, checksum = e4514ffb
+[ MOVE ] dest=8000000, src=837a8, size=4b2d
+[ MOVE ] ELF_START=80000, _end=e89ce0
+md_hdr_offset = 19610 (Hex)
+hdr->flags[0] set, 4kb page aligned required
+hdr->flags[1] set, avail mem struct required
+hdr->flags[2] not set, video mode table not required
+hdr->flags[16] set, extra fields valid
+header_addr=1019610, load_addr=1000000, load_end_addr=1126c68, bss_end_addr=1126c68, entry_addr=1019600
+real_load=882d8, real_load_end=1aef40, real_bss_end=1aef40, real_entry=a18d8
+[ MOVE ] dest=1000000, src=882d8, size=126c68
+[ MOVE ] ELF_START=80000, _end=e89ce0
+move ok.
+bss cleared
+Magic 3f000000 addrin fffffffd
+CurrentEL 00000001
+size_cells : 
+addr_cells : 
+mem_offset : 
+RAM BASE : 
+RAM SIZE : 
+[aarch64 PC] constructor 
+[ Machine ] Initializing heap
+[ Machine ] Main memory detected as 1055756096 b
+[ Machine ] Reserving 1048576 b for machine use 
+* Elf start: 0x1000000
+* Elf ident: ELF, program headers: 0x1000000
+	Elf size: 1207400 
+	Phdr 0 @ 0x1000040, va_addr: 0x1000000 
+	Phdr 1 @ 0x1000078, va_addr: 0x10e9230 
+	Phdr 2 @ 0x10000b0, va_addr: 0x0 
+* Initializing aux-vector @ 0xfffe30
+* Stack protector value: 0
+* Starting libc initialization
+<kernel_main> libc initialization complete 
+<kernel_main> OS start 
+<kernel_main> sanity checks 
+<kernel_main> post start 
+================================================================================
+ IncludeOS 0.15.1-13 (aarch64 / 64-bit)
+ +--> Running [ Hello world - OS included ]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ +--> WARNING: No good random source found: RDRAND/RDSEED instructions not available.
+[ZTDBG] However, Libre Liu have bypassed this check in kernel, for he couldn't find the correct position to turn it off
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[ZTDBG] Calling Service::start()
+[ZTDBG] Service::start() with arg=hello
+Hello world
+This can be both in UART and Framebuffer!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+LED on!
+LED off!
+fs::FAT Constructed
+Calling read_sync()
+OEM name: 	mkfs.fat
+MBR signature: 	0xaa55
+Bytes per sector: 	512
+Sectors per cluster: 	4
+Reserved sectors: 	4
+Number of FATs: 	2
+Small sectors (FAT16): 	16500
+Sectors per FAT: 	20
+Sectors per Track: 	32
+Number of Heads: 	64
+Hidden sectors: 	0
+Large sectors: 	0
+Disk number: 	0x80
+Signature: 	0x29
+System ID: 	FAT16   
+First data sector: 76
+Reserved sectors: 4
+Sectors per cluster: 4
+Data sectors: 16424
+Total clusters: 4106
+The image is type FAT16, with 4106 clusters
+Root cluster index: 2 (sector 44)
+System ID: FAT16   
+        [ FAT ] Initializing FAT16 filesystem
+                [ofs=0  size=268435456 (0 bytes)]
+
+Initializing Disk...
+        [ VFS ] Creating Disk object for emmc1 
+        [ VFS ] Mounting std::__1::shared_ptr<fs::Disk> on /emmc1/
+
+================================================================================
+                                  Mount points                                  
+--------------------------------------------------------------------------------
+-- /
+   `-- emmc1 (std::__1::shared_...)
+________________________________________________________________________________
+
+Calling read_sync()
+Long name: osh-test
+ +-[ osh-test ]
+Calling read_sync()
+Short name: .          
+Short name: ..         
+Long name: hello.txt
+   +  .
+   +  ..
+   +-> hello.txt
+     
+   
+Path: /osh-test/
+Calling read_sync()
+Long name: osh-test
+Calling read_sync()
+Short name: .          
+Short name: ..         
+Long name: hello.txt
+Calling read_sync()
+Hello world from FAT disk!
+
+       [ main ] returned with status 0
+<kernel_main> os_event_loop 
+```
+
+Framebuffer 截图：
+
+![Framebuffer](pics/running_framebuffer.png)
 
 ### 构建过程
+
+#### 需要的知识
+
+- ARMv8A Architeture, Exception Level, Registers, Instructions, etc
+- How ELF is Executed and Linked
+  - See *Linkers and Loaders* for details, also *程序员的自我修养——链接，装载与库*
+- How to write Linker Script (for ld) && Usage for objcopy
+- CMake & Conan familarity, also C++ new features
 
 #### 环境准备
 
@@ -76,7 +240,7 @@ Conan 是一个为 C / C++ 程序设计的包管理器——其通过把需要�
 
 通过 Conan 构建 IncludeOS 大概需要如下步骤：
 
-```
+```shell
 # 构建 x86 版本请参见 https://github.com/includeos/includeos
 # 下面大致描述构建我们正在移植的 aarch64 版本，更详细可以参见 build.md & conan.md
 # 1. 下载 IncludeOS 默认的 config
@@ -89,8 +253,11 @@ git clone https://github.com/libreliu/hello_world.git
 git clone https://github.com/libreliu/includeos.git
 # 2.5 （Important!） 将 musl 包加上 -s build_type=Debug 进行编译
 # （否则会由于奇怪的编译器优化导致 libc initialization failed）
-#TBC
-
+mkdir musl_manual && cd musl_manual
+# 请注意，如果你的 Python 在调用某些包时有 Deprecation warning，请请在 conanfile.py 中先把这些 Warning 去掉
+conan get musl/1.1.18@includeos/stable > conanfile.py 
+conan create . musl/1.1.18@includeos/stable -pr gcc-8.2.0-linux-aarch64 -s build_type=Debug
+cd ..
 # 3. Prepare for includeos build (download dependencies)
 cd includeos && mkdir build
 conan editable add . includeos/$(conan inspect -a version . | cut -d " " -f 2)@includeos/latest --layout=etc/layout.txt
@@ -98,7 +265,51 @@ conan install -if build . -pr gcc-8.2.0-linux-aarch64
 conan build -bf build .
 # （上面这样就构建好了 IncludeOS Library）
 cd ../hello_world    # 转到用户目录
-# TBC
+source activate.sh
+rm CMakeCache.txt    # Make sure previous CMake Configuration Caches are invalidated
+cmake . -DCMAKE_LINKER=aarch64-linux-gnu-ld -DCMAKE_OBJCOPY=/usr/bin/aarch64-linux-gnu-objcopy -DCMAKE_BUILD_TYPE=Debug
+make
+```
+
+作为示例，这里提供一个我使用的快捷构建脚本（如果绑定到桌面的启动器按钮上，就可以一键编译运行了）：
+
+```shell
+#!/bin/bash
+set -e
+source ~/.bashrc
+
+rm /home/includeos/x-ridiculous-includeos/elf-boot/hello.elf.bin || true
+cd /home/includeos/includeos
+conan build . -bf build
+cd ../hello_world
+source activate.sh
+rm CMakeCache.txt
+cmake . -DCMAKE_LINKER=aarch64-linux-gnu-ld -DCMAKE_OBJCOPY=/usr/bin/aarch64-linux-gnu-objcopy -DCMAKE_BUILD_TYPE=Debug
+make
+
+cp bin/hello.elf.bin.copy /home/includeos/x-ridiculous-includeos/elf-boot/hello.elf.bin
+cd /home/includeos/x-ridiculous-includeos/elf-boot/
+make hello.elo
+make
+make run
+
+read
+```
+
+#### `sd.img` 的准备
+
+`sd.img` 是一个 FAT16 的磁盘镜像，可以通过如下方法准备：
+
+```shell
+dd if=/dev/zero of=sd.img count=16500  # Minimum for FAT16 (otherwise its formatted as FAT12)
+                                       # See build/tools/memdisk/memdisk.py for details on this
+mkfs.fat sd.img
+sudo mkdir -p /mnt/raspi
+sudo mount -o loop sd.img /mnt/raspi
+cd /mnt/raspi
+mkdir osh-test && cd osh-test
+echo "Hello world from FAT disk!\n" > hello.txt
+cd / && sudo umount /mnt/raspi 
 ```
 
 ### Boot IncludeOS under AArch64
@@ -160,6 +371,10 @@ typedef struct {
   - 是因为 Qemu 的内存默认都初始化成 0，可能掩盖了一些引用未初始化变量的错误，所以设置此函数
 
 ### 调试 IncludeOS under AArch64
+
+![Working With GdbGUI](pics/debug.png)
+
+
 
 通过 Qemu 进行调试。 Qemu 支持远程调试功能，可以和 gdb 配合进行系统内代码的调试。
 
@@ -423,5 +638,7 @@ fd 在这里被实现为一个类，但这个类对外隐藏，外部通过被�
 
 1. [Alfred Bratterud, Alf-Andre Walla, Harek Haugerud, Paal E. Engelstad, Kyrre Begnum,"IncludeOS: A minimal, resource efficient
 unikernel for cloud services"](https://github.com/includeos/IncludeOS/blob/master/doc/papers/IncludeOS_IEEE_CloudCom2015_PREPRINT.pdf)
-
 2. [Rasberry pi Mailbox prop-channel.](https://jsandler18.github.io/extra/prop-channel.html)
+3. [Arm® Architecture Reference Manual Armv8, for Armv8-A architecture profile](https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile)
+4. [Bare metal Raspberry Pi 3 tutorials](https://github.com/bztsrc/raspi3-tutorial)
+5. Documentations from [Conan](https://docs.conan.io/), [CMake](https://cmake.org/documentation/), and other stuff (ld, IncludeOS, gcc, nasm, gas, qemu...)
