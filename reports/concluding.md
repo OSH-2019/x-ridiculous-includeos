@@ -1,5 +1,42 @@
 # includeOS on ARM 结题报告
-
+- [includeOS on ARM 结题报告](#includeOS-on-ARM-%E7%BB%93%E9%A2%98%E6%8A%A5%E5%91%8A)
+  - [项目介绍](#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D)
+  - [立项依据](#%E7%AB%8B%E9%A1%B9%E4%BE%9D%E6%8D%AE)
+  - [项目进展](#%E9%A1%B9%E7%9B%AE%E8%BF%9B%E5%B1%95)
+    - [完成的预定任务目标](#%E5%AE%8C%E6%88%90%E7%9A%84%E9%A2%84%E5%AE%9A%E4%BB%BB%E5%8A%A1%E7%9B%AE%E6%A0%87)
+    - [还将继续探究的问题](#%E8%BF%98%E5%B0%86%E7%BB%A7%E7%BB%AD%E6%8E%A2%E7%A9%B6%E7%9A%84%E9%97%AE%E9%A2%98)
+  - [工作摘要](#%E5%B7%A5%E4%BD%9C%E6%91%98%E8%A6%81)
+    - [Intro](#Intro)
+    - [includeOS 源代码结构](#includeOS-%E6%BA%90%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84)
+    - [现在可以运行的代码一览](#%E7%8E%B0%E5%9C%A8%E5%8F%AF%E4%BB%A5%E8%BF%90%E8%A1%8C%E7%9A%84%E4%BB%A3%E7%A0%81%E4%B8%80%E8%A7%88)
+    - [运行结果](#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C)
+    - [构建过程](#%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B)
+      - [需要的知识](#%E9%9C%80%E8%A6%81%E7%9A%84%E7%9F%A5%E8%AF%86)
+      - [环境准备](#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87)
+      - [Conan](#Conan)
+      - [`sd.img` 的准备](#sdimg-%E7%9A%84%E5%87%86%E5%A4%87)
+    - [Boot IncludeOS under AArch64](#Boot-IncludeOS-under-AArch64)
+      - [RPi 3b+ 启动](#RPi-3b-%E5%90%AF%E5%8A%A8)
+      - [内存对齐要求](#%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90%E8%A6%81%E6%B1%82)
+      - [ELF Multiboot Bootloader for AArch64](#ELF-Multiboot-Bootloader-for-AArch64)
+    - [调试 IncludeOS under AArch64](#%E8%B0%83%E8%AF%95-IncludeOS-under-AArch64)
+    - [驱动支持](#%E9%A9%B1%E5%8A%A8%E6%94%AF%E6%8C%81)
+      - [GPIO](#GPIO)
+      - [UART](#UART)
+        - [Mailbox](#Mailbox)
+      - [Framebuffer(Support for Screen Device)](#FramebufferSupport-for-Screen-Device)
+      - [eMMC & SD Card](#eMMC--SD-Card)
+      - [MMU](#MMU)
+        - [L1](#L1)
+        - [L2](#L2)
+        - [L3](#L3)
+      - [Exception](#Exception)
+      - [USB](#USB)
+      - [File system](#File-system)
+        - [FAT](#FAT)
+        - [VFS](#VFS)
+  - [未来展望](#%E6%9C%AA%E6%9D%A5%E5%B1%95%E6%9C%9B)
+  - [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)
 ## 项目介绍
 
 IncludeOS 是一个 C++ 的 Unikernel 实现，并可以在 bare-metal 上运行。IncludeOS 提供了丰富的用于网络编程的库，但是目前还不支持在 ARM 上运行。裸机运行的 IncludeOS 相较于 Linux 发行版拥有更快的启动速度，并且减少了进程切换等的无谓开销，代码审计面更小，安全性更高。现有的树莓派的 Unikernel 对网络的支持很弱。在 IoT 领域中，有许多应用场景对延迟的要求十分苛刻，对安全性要求很高。而本项目意在将 IncludeOS 移植到 ARM 上，这样对延迟敏感，安全性要求高的 IoT 应用场景会有很大帮助。
@@ -1086,9 +1123,9 @@ fd 在这里被实现为一个类，但这个类对外隐藏，外部通过被�
 
 - 希望能够提供 Ethernet 支持；
 
-- 希望能够完善 FAT 文件系统中的 FAT 表维护，并提供写支持。
+- 希望能够完善 FAT 文件系统中的 FAT 表维护，并提供写支持；
 
-- 希望能够完成 includeOS 和传统操作系统网络性能对比。
+- 希望能够完成 includeOS 和传统操作系统网络性能对比；
 
 - 如果有可能的话，Merge 进 includeOS 的官方 AArch64 的工作，为开源社区作出贡献。
 
