@@ -37,3 +37,7 @@ An attempt to port IncludeOS to ARM RPi 3B+.
 19/04/24：中期报告.
 
 19/07/07：结题答辩.
+
+----
+
+Notice: Conan 1.17.0 有 regression problem, 在 https://github.com/conan-io/conan/issues/5479
